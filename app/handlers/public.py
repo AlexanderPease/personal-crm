@@ -3,7 +3,12 @@ from flask import (
     Blueprint, jsonify, redirect, render_template, request,
     send_from_directory, session, url_for)
 
+
+from app.lib.google_auth import auth_flow
+
+
 mod = Blueprint('public', __name__)
+
 
 @app.route('/')
 def index():
@@ -15,13 +20,6 @@ def application_email():
     return 'Hello, World!'
 
 
-@app.route('/apply-2')
-def application_full():
-    return 'Hello, World!'
-
-
-@app.route('/apply/success')
-def apply():
-    return 'Hello, World!'
-
-
+@app.route('/google')
+def google():
+    auth_flow()

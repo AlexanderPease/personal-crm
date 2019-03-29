@@ -1,4 +1,9 @@
 # Base file for initiating flask app
+
+
+# Need to add DB management
+# https://medium.com/@dushan14/create-a-web-application-with-python-flask-postgresql-and-deploy-on-heroku-243d548335cc
+
 import os
 from flask import Flask
 
@@ -21,6 +26,10 @@ def register_config(app):
         CONFIG_MAPPING.get(environment)
     )
     app.secret_key = app.config.get('SECRET_KEY')
+
+    if app.config.get('FLASK_DEBUG'):
+        print('app.debug set to True')  # Not being set for some reason...
+        app.debug = True
 
 
 def register_db(app):
