@@ -1,0 +1,54 @@
+.index {
+    .hero {
+        background-image: url('../img/hero.jpeg');
+        background-size: 4096px 500px;
+        background-repeat: no-repeat;
+        background-position: 50% 100%;
+        background-color: $green;
+        padding: 0;
+        height: 500px;
+    }
+
+    h1.hero-title {
+        margin-top: 90px;
+    }
+
+    p.hero-subtitle {
+        size: 18px;
+    }
+
+    // Posters
+    .poster {
+        margin-bottom: 50px;
+    }
+
+    .poster-top {
+        margin-top: 20px;
+    }
+
+    $image-width: 120px;
+    .poster-image {
+        background-image: url('../img/poster-full-time.png');
+        background-size: contain;
+        height: 160px;
+        width: $image-width;
+        position: absolute;
+    }
+
+    .poster-text {
+        margin-left: $image-width + 40px;
+    }
+
+    .poster-text>ul {
+        font-size: $text-large;
+    }
+
+    .poster-title {
+        font-size: $title-medium;
+    }
+
+    .poster-subtitle {
+        font-size: $text-large;
+        margin-top: 10px;
+    }
+}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from 'macros/poster.html' import poster %}
+
+{% block description %}Get ahead by learning from successful entrepreneurs.{% endblock %}
+
+{% block body %}
+<div class="index">
+  <div class="hero">
+    <div class="container">
+      <div class="row">
+        <div class="offset-md-3 col-md-6">
+          <h1 class="hero-title">
+            The ability to innovate is the most sought after skill for a professional.<br/>
+            Get ahead by learning from successful entrepreneurs.
+          </h1>
+          <p class="hero-subtitle">
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-qa container">
+    <div class="row">
+      <div class="col-md-6">
+        <p class="question">
+          What is the Applied Entrepreneurship Program?
+        </p>
+        <p class="answer">
+          &ldquo;The program is designed to expand your ability to push ideas forward on your own&rdquo;
+        </p>
+      </div>
+
+      <div class="col-md-6">
+        {{
+          poster(
+          'Full-Time',
+          'Challenge yourself with an immersive learning experience.',
+          ['4 day intensive program', 'Next session: October 22-25', '$12,500 tuition']) 
+        }}
+        {{
+          poster(
+          'Part-Time',
+          'Learn valuable skills on weeknights or weekends.',
+          ['10 week course', 'Starting October 25', '$12,500']) 
+        }}
+        {{
+          poster(
+          'Online',
+          'Study online at your own pace.',
+          ['40 hours of video tutorials & assignments', '$4,500'])
+        }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

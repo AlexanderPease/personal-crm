@@ -1,0 +1,13 @@
+.index .hero {
+  background: rgba(255, 0, 0, 0.25), url("../img/hero.jpeg");
+  background-size: 1708px 600px;
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  padding: 0;
+  height: 600px; }
+
+.index h1.hero-title {
+  margin-top: 100px; }
+
+.index p.hero-subtitle {
+  size: 18px; }

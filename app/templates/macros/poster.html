@@ -1,0 +1,20 @@
+{% macro poster(title, subtitle, bullets) %}
+<div class="poster poster-top">
+  <img class="poster-image poster-image-full-time"></img>
+  <div class="poster-text">
+    <span class="poster-title">{{ title }}</span>
+    
+    <p class="poster-subtitle">
+      {{ subtitle }}
+    </p>
+    
+    <ul>
+      {% for b in bullets %}
+      <li>{{ b }}</li>
+      {% endfor %}
+    </ul>
+
+    <a class="btn btn-primary" href="{{ url_for('index') }}">Get Started</a>
+  </div>
+</div>
+{% endmacro %}
