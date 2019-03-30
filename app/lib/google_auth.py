@@ -9,6 +9,8 @@ from google.oauth2.credentials import Credentials
 from flask import current_app as app
 from flask import session
 
+from app.models.user import User
+
 
 GOOGLE_CREDENTIALS = {
     "installed": {
@@ -38,10 +40,13 @@ def credentials_to_dict(credentials):
 
 
 def store_credentials(creds):
-    # credentials = google.oauth2.credentials.Credentials(
-    # 'access_token')
-    json = Credentials.to_json(creds)
-    print(json)
+    print('store_credenials')
+    user = User(google_credentials=credentials_to_dict(creds))
+    from app.models import db
+    db.session.add(user)
+    db.session.commit()
+    print('finished')
+    return user
 
 
 def auth_flow():
@@ -49,8 +54,8 @@ def auth_flow():
     Lists the user's Gmail labels.
     """
     creds = None
-    if session.get('credentials'):
-        creds = Credentials(**session.get('credentials'))
+    # if session.get('credentials'):
+    #     creds = Credentials(**session.get('credentials'))
 
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
@@ -69,8 +74,7 @@ def auth_flow():
             print(credentials_to_dict(creds))
             session['credentials'] = credentials_to_dict(creds)
             print(session)
-
-            # print(store_credentials(creds))
+            store_credentials(creds)
 
     service = build('gmail', 'v1', credentials=creds)
 

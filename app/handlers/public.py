@@ -4,6 +4,7 @@ from flask import Blueprint, render_template
 
 
 from app.lib.google_auth import auth_flow
+from app.models.user import User
 
 
 mod = Blueprint('public', __name__)
@@ -11,13 +12,11 @@ mod = Blueprint('public', __name__)
 
 @app.route('/')
 def index():
+    # from app.models import db
 
-    from app.models.user import User
-    from app.models import db
-
-    user = User(email='test@test.com')
-    db.session.add(user)
-    db.session.commit()
+    # # user = User(email='test@test.com')
+    # # db.session.add(user)
+    # # db.session.commit()
 
     return render_template('public/index.html')
 

@@ -37,8 +37,6 @@ def register_db(app):
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    from app.models.user import User
-
 
 def register_blueprints(app):
     from app.handlers.public import mod as public_module
