@@ -6,6 +6,7 @@
 
 import os
 from flask import Flask
+from flask_login import LoginManager
 from flask_migrate import Migrate
 
 from app.config import CONFIG_MAPPING
@@ -27,20 +28,38 @@ def register_config(app):
         CONFIG_MAPPING.get(environment)
     )
     app.secret_key = app.config.get('SECRET_KEY')
-
-    if app.config.get('FLASK_DEBUG'):
-        print('app.debug set to True')  # Not being set for some reason...
-        app.debug = True
+    app.debug = app.config.get('FLASK_DEBUG')
 
 
 def register_db(app):
     db.init_app(app)
-    migrate = Migrate(app, db)
+    Migrate(app, db)
 
 
 def register_blueprints(app):
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
+
+
+def register_extensions(app):
+    login_manager = LoginManager()
+    # login_manager.login_view = 'login.login'
+    # login_manager.refresh_view = 'login.reauthenticate'
+    # login_manager.anonymous_user = NomadAnonymousUser
+    login_manager.init_app(app)
+
+    from app.models.user import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        """Loads active User object for LoginManager."""
+        print("loading user id: {}".format(user_id))
+        # try:
+        user = User.query.get(user_id)
+        print('success')
+        return user
+        # except Exception:
+        #     return None
 
 
 ###############################################################################
@@ -55,8 +74,10 @@ def create_app():
         register_config(app)
         register_db(app)
         register_blueprints(app)
+        register_extensions(app)
 
     return app
 
 
 app = create_app()
+print(app.debug)
