@@ -23,3 +23,5 @@ def application_email():
 @app.route('/google')
 def google():
     auth_flow()
+
+    return 'Auth Success!'

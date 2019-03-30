@@ -18,7 +18,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Degrades app performance
 
     GOOGLE_CLIENT_ID = '403157355212-1ku5k36ghecsk2591j47qbiaj8ac2u3t.apps.googleusercontent.com'
-    GOOGLE_CLIENT_SECREt = os.environ.get('GOOGLE_CLIENT_SECRET')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 
 
 class LocalConfig(Config):

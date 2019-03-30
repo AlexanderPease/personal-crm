@@ -1,10 +1,13 @@
-import pickle
-import os.path
+# Best documentation:
+# https://developers.google.com/api-client-library/python/auth/web-app
+
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 
 from flask import current_app as app
+from flask import session
 
 
 GOOGLE_CREDENTIALS = {
@@ -23,30 +26,53 @@ GOOGLE_CREDENTIALS = {
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 
+def credentials_to_dict(credentials):
+    return {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+
+
+def store_credentials(creds):
+    # credentials = google.oauth2.credentials.Credentials(
+    # 'access_token')
+    json = Credentials.to_json(creds)
+    print(json)
+
+
 def auth_flow():
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
     """
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+    if session.get('credentials'):
+        creds = Credentials(**session.get('credentials'))
+    # if os.path.exists('token.pickle'):
+    #     with open('token.pickle', 'rb') as token:
+    #         creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            print(GOOGLE_CREDENTIALS)
             flow = InstalledAppFlow.from_client_config(
                 GOOGLE_CREDENTIALS,
                 SCOPES
             )
+            # flow.redirect_uri = 'http://localhost:8000/google-callback'
             creds = flow.run_local_server()
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+            print(creds)
+            print(type(creds))
+            print(credentials_to_dict(creds))
+            session['credentials'] = credentials_to_dict(creds)
+            print(session)
+
+            # print(store_credentials(creds))
 
     service = build('gmail', 'v1', credentials=creds)
 
@@ -59,4 +85,4 @@ def auth_flow():
     else:
         print('Labels:')
         for label in labels:
-            print(label['name'])
+            print(label['name'])    
