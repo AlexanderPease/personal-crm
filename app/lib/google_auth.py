@@ -77,3 +77,12 @@ def auth_credentials():
 
 def init_service(creds):
     return build('gmail', 'v1', credentials=creds)
+
+
+def service_for_user(user):
+    try:
+        return init_service(
+            credentials_from_dict(user.google_credentials)
+        )
+    except Exception:
+        pass

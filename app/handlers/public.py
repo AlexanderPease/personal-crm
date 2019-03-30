@@ -4,7 +4,8 @@ from flask import (
 from flask_login import current_user
 
 from app.lib.google_auth import (
-    auth_credentials, init_service, credentials_from_dict)
+    auth_credentials, service_for_user)
+from app.lib.gmail import GmailService
 
 
 mod = Blueprint('public', __name__)
@@ -13,9 +14,8 @@ mod = Blueprint('public', __name__)
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        service = init_service(
-            credentials_from_dict(current_user.google_credentials)
-        )
+        service = service_for_user(current_user)
+
         results = service.users().labels().list(userId='me').execute()
         labels = results.get('labels', [])
 
@@ -35,3 +35,19 @@ def auth():
     # session.clear()
     auth_credentials()
     return redirect(url_for('index'))
+
+
+@app.route('/gmail')
+def get_messages():
+    if current_user.is_authenticated:
+        service = GmailService(current_user)
+        messages = service.list_messages()
+        for msg in messages[0:1]:
+            message = service.get_message(msg['id'])
+
+            # print('Message snippet: %s' % message['snippet'])
+            for header in message['payload']['headers']:
+                print('{}: {}'.format(header['name'], header['value']))
+                print('---------')
+
+    return 'Success'

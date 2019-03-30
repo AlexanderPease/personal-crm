@@ -1,9 +1,4 @@
 # Base file for initiating flask app
-
-
-# Need to add DB management
-# https://medium.com/@dushan14/create-a-web-application-with-python-flask-postgresql-and-deploy-on-heroku-243d548335cc
-
 import os
 from flask import Flask
 from flask_login import LoginManager
@@ -45,7 +40,6 @@ def register_extensions(app):
     login_manager = LoginManager()
     # login_manager.login_view = 'login.login'
     # login_manager.refresh_view = 'login.reauthenticate'
-    # login_manager.anonymous_user = NomadAnonymousUser
     login_manager.init_app(app)
 
     from app.models.user import User
@@ -53,13 +47,10 @@ def register_extensions(app):
     @login_manager.user_loader
     def load_user(user_id):
         """Loads active User object for LoginManager."""
-        print("loading user id: {}".format(user_id))
-        # try:
-        user = User.query.get(user_id)
-        print('success')
-        return user
-        # except Exception:
-        #     return None
+        try:
+            return User.query.get(user_id)
+        except Exception:
+            return None
 
 
 ###############################################################################
