@@ -6,6 +6,7 @@
 
 import os
 from flask import Flask
+from flask_migrate import Migrate
 
 from app.config import CONFIG_MAPPING
 from app.models import db
@@ -34,6 +35,9 @@ def register_config(app):
 
 def register_db(app):
     db.init_app(app)
+    migrate = Migrate(app, db)
+
+    from app.models.user import User
 
 
 def register_blueprints(app):
