@@ -9,6 +9,10 @@ class GmailService(object):
         self.service = service_for_user(user)
         self.user_id = user_id
 
+    def get_email_address(self):
+        return self.service.users().profile().get(
+                userId=self.user_id).execute()
+
     def get_message(self, msg_id):
         """Get a Message with given ID.
 

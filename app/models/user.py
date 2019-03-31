@@ -8,18 +8,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String())
     google_credentials = db.Column(db.JSON())
 
-    # def __init__(self, name, author, published):
-    #     self.name = name
-    #     self.author = author
-    #     self.published = published
+    # User has many Mailboxes, which each have many Messages
+    mailboxes = db.relationship(
+        "Mailboxes", back_populates="user")
 
     def __repr__(self):
         return '<User {}>'.format(self.email)
-
-    # def serialize(self):
-    #     return {
-    #         'id': self.id,
-    #         'name': self.name,
-    #         'author': self.author,
-    #         'published': self.published
-    #     }
