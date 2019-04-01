@@ -5,6 +5,8 @@ from app.models import db
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+
+    # Google Auth is only supported method, currently
     email = db.Column(db.String(), nullable=False)
     google_credentials = db.Column(db.JSON())
 

@@ -10,7 +10,6 @@ from flask import current_app as app
 from flask import session
 from flask_login import login_user
 
-from app.lib import 
 from app.models.user import User
 
 
@@ -66,14 +65,9 @@ def auth_credentials():
     return creds
 
 
-def init_service(creds):
-    return build('gmail', 'v1', credentials=creds)
-
-
 def service_for_user(user):
+    creds = credentials_from_dict(user.google_credentials)
     try:
-        return init_service(
-            credentials_from_dict(user.google_credentials)
-        )
+        return build('gmail', 'v1', credentials=creds)
     except Exception:
         pass

@@ -8,6 +8,9 @@ from app.lib.google_auth import (
 from app.lib.gmail import GmailService
 from app.models import db
 from app.models.user import User
+from app.models.mailbox import Mailbox
+from app.models.message import Message
+from app.models.contact import Contact
 
 
 mod = Blueprint('public', __name__)
@@ -44,10 +47,17 @@ def auth():
     creds = credentials_to_dict(credentials)
 
     if not current_user:
+        # Create User
         user = User(google_credentials=creds)
         service = GmailService(user)
         user.email_address = service.get_email_address()
 
+        # Create associated Gmail inbox
+        mailbox = Mailbox(
+            user_id=user.id,
+            email_address=user.email_address)
+
+        # Log in
         session['credentials'] = creds
         login_user(user, remember=True)
     else:
