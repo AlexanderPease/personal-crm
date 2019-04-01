@@ -10,6 +10,7 @@ from flask import current_app as app
 from flask import session
 from flask_login import login_user
 
+from app.lib import 
 from app.models.user import User
 
 
@@ -44,16 +45,9 @@ def credentials_to_dict(credentials):
     }
 
 
-def store_credentials(creds):
-    user = User(google_credentials=credentials_to_dict(creds))
-    from app.models import db
-    db.session.add(user)
-    db.session.commit()
-    return user
-
-
 def auth_credentials():
-    """Returns authenticated Google API credentials."""
+    """Takes user through Google authentication flow.
+    Returns Google authentication credentials for current user."""
     creds = None
     if session.get('credentials'):
         creds = Credentials(**session.get('credentials'))
@@ -69,9 +63,6 @@ def auth_credentials():
             )
             # flow.redirect_uri = 'http://localhost:8000/google-callback'
             creds = flow.run_local_server()
-            session['credentials'] = credentials_to_dict(creds)
-            user = store_credentials(creds)
-            login_user(user, remember=True)
     return creds
 
 

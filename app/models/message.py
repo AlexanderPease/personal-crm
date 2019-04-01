@@ -22,7 +22,7 @@ class Message(db.Model):
 class EmailAddress(db.Model):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
-    email_address = db.Column(db.String(), required=True)
+    email_address = db.Column(db.String(), nullable=False)
     name = db.Column(db.String())
 
     # Contact
@@ -36,6 +36,6 @@ class EmailAddress(db.Model):
 class MessageEmailAddress(db.Model):
     """For connecting Messages to EmailAddress tables."""
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer, required=True)
-    email_id = db.Column(db.Integer, required=True)
-    action = db.Column(db.String(), required=True)  # Ex. To, Bcc
+    message_id = db.Column(db.Integer, nullable=False)
+    email_id = db.Column(db.Integer, nullable=False)
+    action = db.Column(db.String(), nullable=False)  # Ex. To, Bcc

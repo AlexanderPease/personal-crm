@@ -5,7 +5,7 @@ from app.models import db
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String())
+    email = db.Column(db.String(), nullable=False)
     google_credentials = db.Column(db.JSON())
 
     # User has many Mailboxes, which each have many Messages
