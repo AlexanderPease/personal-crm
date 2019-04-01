@@ -7,7 +7,7 @@ class Message(db.Model):
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
-    mailbox = db.relationship("User", back_populates="messages")
+    mailbox = db.relationship("Mailbox", back_populates="messages")
 
     # Gmail
     message_id = db.Column(db.String())

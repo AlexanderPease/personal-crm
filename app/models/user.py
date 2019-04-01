@@ -12,7 +12,7 @@ class User(db.Model, UserMixin):
 
     # User has many Mailboxes, which each have many Messages
     mailboxes = db.relationship(
-        "Mailboxes", back_populates="user")
+        "Mailbox", back_populates="user")
 
     def __repr__(self):
         return '<User {}>'.format(self.email)

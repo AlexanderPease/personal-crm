@@ -6,4 +6,4 @@ class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     email_addresses = db.relationship(
-        "Email Addresses", back_populates="contact")
+        "EmailAddress", back_populates="contact")

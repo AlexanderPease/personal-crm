@@ -11,7 +11,7 @@ class Mailbox(db.Model):
 
     # Mailbox has many messages
     messages = db.relationship(
-        "Messages", back_populates="user")
+        "Message", back_populates="mailbox")
 
     # A CRM User can have multiple mailboxes
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

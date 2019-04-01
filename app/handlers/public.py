@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask import (
     Blueprint, render_template, redirect, url_for, session)
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 from app.lib.google_auth import (
     auth_credentials, service_for_user, credentials_to_dict)
@@ -18,6 +18,9 @@ mod = Blueprint('public', __name__)
 
 @app.route('/')
 def index():
+    print(current_user)
+    print(current_user.is_authenticated)
+    print(current_user.get_id())
     if current_user.is_authenticated:
         service = service_for_user(current_user)
         if service:
@@ -37,6 +40,7 @@ def index():
 @app.route('/auth')
 def auth():
     """Authenticate with Google Auth API."""
+    logout_user()
     from flask import session
     session.clear()
 
@@ -46,7 +50,12 @@ def auth():
         return redirect(url_for('index'))
     creds = credentials_to_dict(credentials)
 
-    if not current_user:
+    print(current_user)
+    print(current_user.is_authenticated)
+    if current_user.is_authenticated:
+        user = User.query.get(id=current_user.get_id())
+        user.google_credentials = creds
+    else:
         # Create User
         user = User(google_credentials=creds)
         service = GmailService(user)
@@ -56,12 +65,11 @@ def auth():
         mailbox = Mailbox(
             user_id=user.id,
             email_address=user.email_address)
+        print(mailbox)
 
         # Log in
         session['credentials'] = creds
         login_user(user, remember=True)
-    else:
-        user.google_credentials = creds
     db.session.add(user)
     db.session.commit()
 
