@@ -13,6 +13,8 @@ class Message(db.Model):
     message_id = db.Column(db.String())
     thread_id = db.Column(db.String())
 
+    raw_headers = db.Column(db.JSON())
+    # todo delete headers_raw
     headers_raw = db.Column(db.String())
 
     def __repr__(self):

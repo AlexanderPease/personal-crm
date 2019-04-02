@@ -28,7 +28,7 @@ def register_config(app):
 
 def register_db(app):
     db.init_app(app)
-    Migrate(app, db)
+    Migrate(app, db, compare_type=True)
 
 
 def register_blueprints(app):
@@ -71,4 +71,3 @@ def create_app():
 
 
 app = create_app()
-print(app.debug)

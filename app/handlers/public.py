@@ -40,53 +40,75 @@ def index():
 @app.route('/auth')
 def auth():
     """Authenticate with Google Auth API."""
-    logout_user()
-    from flask import session
-    session.clear()
-
     credentials = auth_credentials()
     if not credentials:
         # to-do failure
         return redirect(url_for('index'))
     creds = credentials_to_dict(credentials)
 
-    print(current_user)
-    print(current_user.is_authenticated)
     if current_user.is_authenticated:
         user = User.query.get(id=current_user.get_id())
         user.google_credentials = creds
+        db.session.add(user)
+        db.session.commit()
     else:
         # Create User
         user = User(google_credentials=creds)
         service = GmailService(user)
-        user.email_address = service.get_email_address()
+        user.email = service.get_email_address()
+        if not user.email:
+            # to-do failure
+            return redirect(url_for('index'))
 
-        # Create associated Gmail inbox
-        mailbox = Mailbox(
-            user_id=user.id,
-            email_address=user.email_address)
-        print(mailbox)
+        db.session.add(user)
+        db.session.commit()
 
         # Log in
         session['credentials'] = creds
         login_user(user, remember=True)
-    db.session.add(user)
-    db.session.commit()
+
+        # Create associated Gmail inbox
+        mailbox = Mailbox(
+            user_id=user.id,
+            email_address=user.email)
+
+        db.session.add(mailbox)
+        db.session.commit()
+
 
     return redirect(url_for('index'))
 
 
+@app.route('/auth/logout')
+def logout():
+    logout_user()
+    session.clear()
+
 @app.route('/gmail')
 def get_messages():
-    if current_user.is_authenticated:
-        service = GmailService(current_user)
-        messages = service.list_messages()
-        for msg in messages[0:1]:
-            message = service.get_message(msg['id'])
 
-            # print('Message snippet: %s' % message['snippet'])
-            for header in message['payload']['headers']:
-                print('{}: {}'.format(header['name'], header['value']))
-                print('---------')
+    user = User.query.get(10)
+    login_user(user)
+
+    if not current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    service = GmailService(current_user)
+    mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
+    
+    messages = service.list_messages()
+
+    for msg in messages:
+        msg = service.get_message(msg['id'])
+        message = Message(
+            mailbox_id=mailbox.id,
+            raw_headers=msg['payload']['headers'])
+        db.session.add(message)
+
+        # print('Message snippet: %s' % msg['snippet'])
+        # for header in msg['payload']['headers']:
+        #     print('{}: {}'.format(header['name'], header['value']))
+        #     print('---------')
+    db.session.commit()
 
     return 'Success'

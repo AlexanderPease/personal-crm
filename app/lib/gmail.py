@@ -10,8 +10,16 @@ class GmailService(object):
         self.user_id = user_id
 
     def get_email_address(self):
-        return self.service.users().profile(
-                userId=self.user_id).execute()
+        """Returns email address.
+        Ignores other profile info, ex. # of messages or threads.
+        """
+        try:
+            profile = self.service.users().getProfile(
+                    userId=self.user_id).execute()
+            print(profile)
+            return profile['emailAddress']
+        except:
+            print('Failed to retrieve email address for user {}'.format(self.user.id))
 
     def get_message(self, msg_id):
         """Get a Message with given ID.

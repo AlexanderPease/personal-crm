@@ -22,7 +22,6 @@ class Config(object):
 
 
 class LocalConfig(Config):
-    FLASK_ENV = 'development'
     FLASK_DEBUG = True
     FLASK_LOG_LEVEL = 'DEBUG'
 
