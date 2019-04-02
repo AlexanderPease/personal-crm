@@ -6,6 +6,7 @@ from flask_login import current_user, login_user, logout_user
 from app.lib.google_auth import (
     auth_credentials, service_for_user, credentials_to_dict)
 from app.lib.gmail import GmailService
+from app.lib.parse_messages import parse_message
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
@@ -18,9 +19,6 @@ mod = Blueprint('public', __name__)
 
 @app.route('/')
 def index():
-    print(current_user)
-    print(current_user.is_authenticated)
-    print(current_user.get_id())
     if current_user.is_authenticated:
         service = service_for_user(current_user)
         if service:
@@ -37,7 +35,7 @@ def index():
     return render_template('public/index.html')
 
 
-@app.route('/auth')
+@app.route('/auth/google')
 def auth():
     """Authenticate with Google Auth API."""
     credentials = auth_credentials()
@@ -79,6 +77,14 @@ def auth():
     return redirect(url_for('index'))
 
 
+@app.route('/auth/login')
+def login():
+    if not current_user.is_authenticated:
+        user = User.query.get(10) # garbage
+        login_user(user, remember=True)
+    return 'Success'
+
+
 @app.route('/auth/logout')
 def logout():
     logout_user()
@@ -98,20 +104,27 @@ def get_messages():
     for msg in messages:
         msg = service.get_message(msg['id'])
         message = Message(
+            message_id=msg['id'],
+            thread_id=msg['threadId'],
             mailbox_id=mailbox.id,
-            raw_headers=msg['payload']['headers'])
+            raw_resource=msg
+        )
         db.session.add(message)
-
-        # print('Message snippet: %s' % msg['snippet'])
-        # for header in msg['payload']['headers']:
-        #     print('{}: {}'.format(header['name'], header['value']))
-        #     print('---------')
-    db.session.commit()
+        db.session.commit()
 
     return 'Success'
+
 
 @app.route('/parse')
 def parse_headers():
     messages = Message.query.all()
     for message in messages:
-        parse_message_headers(message)
+        parse_message(message)
+
+    return 'Success'
+
+
+@app.route('/messages')
+def messages():
+    return render_template('public/messages.html', messages=Message.query.all())
+

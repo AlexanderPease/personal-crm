@@ -1,0 +1,16 @@
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Mailbox</th>
+    <th>From</th>
+    <th>To</th>
+  </tr>
+  {% for msg in messages %}
+  <tr>
+    <td>{{ msg.id }}</td>
+    <td>{{ msg.mailbox }}</td>
+    <td>{{ msg.header_from.email_address }}</td>
+    <td>{{ msg.header_to }}</td>
+  </tr>
+  {% endfor %}
+</table>
