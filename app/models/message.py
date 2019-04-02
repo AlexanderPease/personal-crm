@@ -17,6 +17,9 @@ class Message(db.Model):
     # todo delete headers_raw
     headers_raw = db.Column(db.String())
 
+    header_from_id = db.Column(db.Integer, db.ForeignKey('header_from.id'))
+    header_from = db.relationship("MessageEmailAddress", back_populates='message_id')
+
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
@@ -24,10 +27,10 @@ class Message(db.Model):
 class EmailAddress(db.Model):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
-    email_address = db.Column(db.String(), nullable=False)
+    email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
-    # Contact
+    # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
     contact = db.relationship("Contact", back_populates="email_addresses")
 
@@ -40,4 +43,4 @@ class MessageEmailAddress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer, nullable=False)
     email_id = db.Column(db.Integer, nullable=False)
-    action = db.Column(db.String(), nullable=False)  # Ex. To, Bcc
+    action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc

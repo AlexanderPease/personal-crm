@@ -84,12 +84,9 @@ def logout():
     logout_user()
     session.clear()
 
+
 @app.route('/gmail')
 def get_messages():
-
-    user = User.query.get(10)
-    login_user(user)
-
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -112,3 +109,9 @@ def get_messages():
     db.session.commit()
 
     return 'Success'
+
+@app.route('/parse')
+def parse_headers():
+    messages = Message.query.all()
+    for message in messages:
+        parse_message_headers(message)
