@@ -21,12 +21,12 @@ class Message(db.Model):
     headers_raw = db.Column(db.String())
 
     header_from_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
-    header_from = db.relationship(
-        "MessageEmailAddress",
-        uselist=False,
-        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, "
-                    "MessageEmailAddress.action=='from')"
-        )
+    # header_from = db.relationship(
+    #     "MessageEmailAddress",
+    #     uselist=False,
+    #     primaryjoin="and_(Message.id==MessageEmailAddress.message_id, "
+    #                 "MessageEmailAddress.action=='from')"
+    #     )
         # secondaryjoin="MessageEmailAddress.email_id==EmailAddress.id",
         # secondary=EmailAddress.__table__)
 
@@ -37,6 +37,14 @@ class Message(db.Model):
         return '<Message {}>'.format(self.id)
 
 
+assoc_message_email_address = db.Table('message_email_address',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('message_id', db.Integer, db.ForeignKey('message.id'), nullable=False),
+    db.Column('email_id', db.Integer, db.ForeignKey('email_address.id'), nullable=False),
+    db.Column('action', db.String(), nullable=False)  # Ex. From, To, Bcc
+)
+
+
 class EmailAddress(db.Model):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
@@ -44,11 +52,16 @@ class EmailAddress(db.Model):
     name = db.Column(db.String())
 
     messages_from = db.relationship(
-        "MessageEmailAddress",
-        primaryjoin="and_(EmailAddress.id==MessageEmailAddress.email_id, "
-                    "MessageEmailAddress.action=='from')",
-        secondary=Message.__table__,
-        secondaryjoin="MessageEmailAddress.message_id==Message.id"
+        assoc_message_email_address,
+        primaryjoin=(id==assoc_message_email_address.email_id),
+        secondary=Message,
+        secondaryjoin="Message.id=assoc_message_email_address.message_id"
+        
+
+        # primaryjoin="and_(EmailAddress.id==message_email_address.email_id, "
+                    # "message_email_address.action=='from')",
+        # secondary=Message.__table__,
+        # secondaryjoin="MessageEmailAddress.message_id==Message.id"
         )
 
     # Contact - not yet in use
@@ -64,13 +77,12 @@ class EmailAddress(db.Model):
     def __repr__(self):
         return self.email_address
 
-
-class MessageEmailAddress(db.Model):
-    """For connecting Messages to EmailAddress tables."""
-    id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
+# class MessageEmailAddress(db.Model):
+#     """For connecting Messages to EmailAddress tables."""
     
-    email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
-    email_address = db.relationship("EmailAddress", uselist=False)
+#     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
     
-    action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
+#     email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'))
+#     email_address = db.relationship("EmailAddress", uselist=False)
+    
+    
