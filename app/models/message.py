@@ -43,6 +43,14 @@ class EmailAddress(db.Model):
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
+    messages_from = db.relationship(
+        "MessageEmailAddress",
+        primaryjoin="and_(EmailAddress.id==MessageEmailAddress.email_id, "
+                    "MessageEmailAddress.action=='from')",
+        secondary=Message.__table__,
+        secondaryjoin="MessageEmailAddress.message_id==Message.id"
+        )
+
     # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
     contact = db.relationship("Contact", back_populates="email_addresses")
@@ -63,6 +71,6 @@ class MessageEmailAddress(db.Model):
     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
     
     email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
-    email_address = db.relationship("EmailAddress",uselist=False)
+    email_address = db.relationship("EmailAddress", uselist=False)
     
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc

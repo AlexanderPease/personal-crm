@@ -10,7 +10,7 @@ from app.lib.parse_messages import parse_message
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
-from app.models.message import Message
+from app.models.message import Message, EmailAddress
 from app.models.contact import Contact
 
 
@@ -127,4 +127,9 @@ def parse_headers():
 @app.route('/messages')
 def messages():
     return render_template('public/messages.html', messages=Message.query.all())
+
+
+@app.route('/emails')
+def emails():
+    return render_template('public/email_addresses.html', email_addresses=EmailAddress.query.all())
 

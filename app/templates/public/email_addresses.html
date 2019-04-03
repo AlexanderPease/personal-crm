@@ -1,0 +1,12 @@
+<table>
+  <tr>
+    <th>Email Address</th>
+    <th>Messages From</th>
+  </tr>
+  {% for email in email_addresses %}
+  <tr>
+    <td>{{ email.email_address }}</td>
+    <td>{{ email.messages_from }}</td>
+  </tr>
+  {% endfor %}
+</table>
