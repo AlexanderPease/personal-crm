@@ -1,28 +1,13 @@
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import relationship, backref, aliased
 
 from app.models import db
 
 
-# Join Message and EmailAddress tables
-class MessageEmailAddress(db.Model):
-    # __tablename__ = 'message_email_address'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
-    email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
-    action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
-
-    message = db.relationship("Message", back_populates="email_address")
-    email_address = db.relationship("EmailAddress", back_populates="message")
-
-# association_table = aliased(MessageEmailAddress)
-
-
 class Message(db.Model):
-    __tablename__ = 'message'
-    email_address = db.relationship("MessageEmailAddress", back_populates="message")
+    # email_address = relationship("MessageEmailAddress", back_populates="message")
+    email_address = relationship("EmailAddress", secondary="message_email_address")
     
 
     """A single message."""
@@ -30,7 +15,7 @@ class Message(db.Model):
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
-    mailbox = db.relationship("Mailbox", back_populates="messages")
+    mailbox = relationship("Mailbox", back_populates="messages")
 
     # Gmail
     message_id = db.Column(db.String(), unique=True)
@@ -47,7 +32,7 @@ class Message(db.Model):
     header_from_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
     
     # Not sure why this didn't work
-    # header_from = db.relationship(
+    # header_from = relationship(
     #     "EmailAddress",
     #     # uselist=False,
     #     secondary=aux_message_email_address,
@@ -57,7 +42,7 @@ class Message(db.Model):
 
     # todo delete header_to_id
     header_to_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
-    # header_to = db.relationship("MessageEmailAddress", back_populates='message_id')
+    # header_to = relationship("MessageEmailAddress", back_populates='message_id')
 
 
 
@@ -86,8 +71,8 @@ class Message(db.Model):
 
 
 class EmailAddress(db.Model):
-    __tablename__ = 'email_address'
-    message = db.relationship("MessageEmailAddress", back_populates="email_address")
+    # message = relationship("MessageEmailAddress", back_populates="email_address")
+    message = relationship("Message", secondary="message_email_address")
 
 
 
@@ -97,14 +82,14 @@ class EmailAddress(db.Model):
     name = db.Column(db.String())
 
 
-    #     messages_from = db.relationship(
+    #     messages_from = relationship(
     #     "Message",
     #     secondary=aux_message_email_address,
     #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='from'),
     #     secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
     #     backref="_from_email"
     # )
-    # messages_from = db.relationship(
+    # messages_from = relationship(
     #     "Message",
     #     secondary="MessageEmailAddress",
     #     primaryjoin=and_(id==MessageEmailAddress.email_id, MessageEmailAddress.action=='from'),
@@ -114,7 +99,7 @@ class EmailAddress(db.Model):
 
     
 
-    # messages_to = db.relationship(
+    # messages_to = relationship(
     #     "Message",
     #     secondary=aux_message_email_address,
     #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='to'),
@@ -124,7 +109,7 @@ class EmailAddress(db.Model):
 
     # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    contact = db.relationship("Contact", back_populates="email_addresses")
+    contact = relationship("Contact", back_populates="email_addresses")
 
     def __init__(self, **kwargs):
         super(EmailAddress, self)
@@ -145,3 +130,21 @@ class EmailAddress(db.Model):
             db.session.add(email_address)
             db.session.commit()
             return email_address
+
+
+# Join Message and EmailAddress tables
+class MessageEmailAddress(db.Model):
+    # __tablename__ = 'message_email_address'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
+    email_address_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
+    action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
+
+    # message = relationship("Message", back_populates="email_address")
+    # email_address = relationship("EmailAddress", back_populates="message")
+
+    message = relationship(Message, backref=backref("message_email_address", cascade="all, delete-orphan"))
+    email_address = relationship(EmailAddress, backref=backref("message_email_address", cascade="all, delete-orphan"))
+
+# association_table = aliased(MessageEmailAddress)
