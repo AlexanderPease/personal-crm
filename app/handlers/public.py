@@ -19,15 +19,6 @@ mod = Blueprint('public', __name__)
 
 @app.route('/')
 def index():
-
-    query = db.session.query(Message, MessageEmailAddress.id).join(MessageEmailAddress, Message.id == MessageEmailAddress.message_id)
-    print(query.statement)
-    values = query.all()
-    for value in values:
-        print(value)
-        print(type(value))
-    return 'Success'
-
     if current_user.is_authenticated:
         service = service_for_user(current_user)
         if service:
