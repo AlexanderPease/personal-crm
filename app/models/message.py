@@ -1,8 +1,19 @@
+from sqlalchemy import and_
+
 from app.models import db
 
 
+# Join Message and EmailAddress tables
+aux_message_email_address = db.Table('message_email_address',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('message_id', db.Integer, db.ForeignKey('message.id'), nullable=False),
+    db.Column('email_id', db.Integer, db.ForeignKey('email_address.id'), nullable=False),
+    db.Column('action', db.String(), nullable=False)  # Ex. From, To, Bcc
+)
+
+
 class Message(db.Model):
-    """A single message"""
+    """A single message."""
     id = db.Column(db.Integer, primary_key=True)
 
     # Many Messages for a single Mailbox
@@ -20,29 +31,28 @@ class Message(db.Model):
     # todo delete headers_raw
     headers_raw = db.Column(db.String())
 
+    # todo delete header_from_id
     header_from_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
+    
+    # Not sure why this didn't work
     # header_from = db.relationship(
-    #     "MessageEmailAddress",
-    #     uselist=False,
-    #     primaryjoin="and_(Message.id==MessageEmailAddress.message_id, "
-    #                 "MessageEmailAddress.action=='from')"
-    #     )
-        # secondaryjoin="MessageEmailAddress.email_id==EmailAddress.id",
-        # secondary=EmailAddress.__table__)
+    #     "EmailAddress",
+    #     # uselist=False,
+    #     secondary=aux_message_email_address,
+    #     primaryjoin=and_(id==aux_message_email_address.c.message_id, aux_message_email_address.c.action=='from'),
+    #     secondaryjoin=(id==aux_message_email_address.c.email_id)
+    # )
 
+    # todo delete header_to_id
     header_to_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
     # header_to = db.relationship("MessageEmailAddress", back_populates='message_id')
 
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
-
-assoc_message_email_address = db.Table('message_email_address',
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('message_id', db.Integer, db.ForeignKey('message.id'), nullable=False),
-    db.Column('email_id', db.Integer, db.ForeignKey('email_address.id'), nullable=False),
-    db.Column('action', db.String(), nullable=False)  # Ex. From, To, Bcc
-)
+    @property
+    def from_email(self):
+        return self._from_email[0]
 
 
 class EmailAddress(db.Model):
@@ -52,17 +62,20 @@ class EmailAddress(db.Model):
     name = db.Column(db.String())
 
     messages_from = db.relationship(
-        assoc_message_email_address,
-        primaryjoin=(id==assoc_message_email_address.email_id),
-        secondary=Message,
-        secondaryjoin="Message.id=assoc_message_email_address.message_id"
-        
+        "Message",
+        secondary=aux_message_email_address,
+        primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='from'),
+        secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
+        backref="_from_email"
+    )
 
-        # primaryjoin="and_(EmailAddress.id==message_email_address.email_id, "
-                    # "message_email_address.action=='from')",
-        # secondary=Message.__table__,
-        # secondaryjoin="MessageEmailAddress.message_id==Message.id"
-        )
+    messages_to = db.relationship(
+        "Message",
+        secondary=aux_message_email_address,
+        primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='to'),
+        secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
+        backref="_to_emails"
+    )
 
     # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
@@ -75,14 +88,4 @@ class EmailAddress(db.Model):
             self.email_address = kwargs['email_address'].lower()
 
     def __repr__(self):
-        return self.email_address
-
-# class MessageEmailAddress(db.Model):
-#     """For connecting Messages to EmailAddress tables."""
-    
-#     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
-    
-#     email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'))
-#     email_address = db.relationship("EmailAddress", uselist=False)
-    
-    
+        return self.email_address    

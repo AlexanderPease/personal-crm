@@ -1,16 +1,17 @@
 <table>
   <tr>
     <th>ID</th>
-    <th>Mailbox</th>
+    <th>Snippet</th>
     <th>From</th>
     <th>To</th>
   </tr>
   {% for msg in messages %}
   <tr>
     <td>{{ msg.id }}</td>
-    <td>{{ msg.mailbox }}</td>
-    <td>{{ msg.header_from.email_address }}</td>
-    <td>{{ msg.header_to }}</td>
+    <td>{{ msg.raw_resource['snippet'][:60] }}</td>
+    <td>{{ msg.header_from }}</td>
+    <td>{{ msg.from_email }}</td>
+    <td>{{ msg.to_emails }}</td>
   </tr>
   {% endfor %}
 </table>
