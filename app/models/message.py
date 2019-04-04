@@ -44,63 +44,58 @@ class Message(db.Model):
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
-    @property
-    def email_address(self, **kwargs):
+    def email_addresses(self, action=None, **kwargs):
         """All EmailAddress objects in the headers of this message."""
-        return self.__query_email_addresses()
+        if action and action not in HEADER_ACTIONS:
+            return
+        
+        return self._query_email_addresses(action=action, **kwargs)
 
     @property
     def from_email_address(self):
         """Returns the single EmailAddress in From: header."""
-        return self.__query_email_addresses(action='from')[0]
+        try:
+            return self._query_email_addresses(action='from')[0]
+        except:
+            pass
 
-    @property
-    def to_email_address(self):
-        """Returns all EmailAddress objects in To: header."""
-        return self.__query_email_addresses(action='to')
-
-    def __query_email_addresses(self, **kwargs):
+    def _query_email_addresses(self, **kwargs):
+        """Can only query on columns in MessageEmailAddress."""
         return [assoc.email_address for assoc in self._email_addresses.filter_by(**kwargs).all()]
     
 
-    def add_email_address(self, email_str, action):
+    def add_email_address(self, email_str, action, name=None):
         """Setter method for all related EmailAddress objects.
 
         Args:
             email_str: A string, ex. "david@gmail.com"
             action: A string describing header action, ex. "from"
+            name: Optional string for name of EmailAddress
 
         """
+        if email_str=='godfred@hansen-nord.dk':
+            print(f'{email_str}')
+            print(f'{action}')
+            print(f'{name}')
+
         if action not in HEADER_ACTIONS:
             print(f'Attempted to add malformed action {action} to {self}')
             return
 
-        # Ensure only a single unique connection between Message and EmailAddress
-        # for a given action, ex. To:
-        pre_existing = self.__query_email_addresses(
-            email_address=email_str,
-            action=action)
-        if pre_existing:
+        # Ensure connection between Message, EmailAddress, and action is unique
+        email_address = EmailAddress.get_or_create(email_str, name)
+        kwargs = dict(email_id=email_address.id, action=action)
+        pre_existing = self._query_email_addresses(**kwargs)
+        if email_str=='godfred@hansen-nord.dk':
+            print(f'Preexisting relationship: {pre_existing}')
+        if pre_existing and len(pre_existing):
             return
 
         # Add new connection
-        a = MessageEmailAddress(action=action)
-        a.email_address = EmailAddress.get_or_create(email_address=email_address)
+        a = MessageEmailAddress(**kwargs)
         self._email_addresses.append(a)
         db.session.add(self)
         db.session.commit()
-
-        # # Add new connection
-        # try:
-        #     new = MessageEmailAddress(
-        #         email_id=email_address.id,
-        #         message_id=self.id,
-        #         action=action
-        #     )
-        #     db.session.add(new)
-        #     db.session.commit()
-        # except:
-        #     print('Failure to add MessageEmailAddress')
 
 
 class EmailAddress(db.Model):
@@ -110,33 +105,6 @@ class EmailAddress(db.Model):
     name = db.Column(db.String())
 
     _messages = relationship("MessageEmailAddress", lazy='dynamic', backref=backref("email_address"))
-    # message = relationship("Message", secondary="message_email_address")
-
-
-    #     messages_from = relationship(
-    #     "Message",
-    #     secondary=aux_message_email_address,
-    #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='from'),
-    #     secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
-    #     backref="_from_email"
-    # )
-    # messages_from = relationship(
-    #     "Message",
-    #     secondary="MessageEmailAddress",
-    #     primaryjoin=and_(id==MessageEmailAddress.email_id, MessageEmailAddress.action=='from'),
-    #     secondaryjoin=(Message.id==Message.message_id),
-    #     backref="_from_email"
-    # )
-
-    
-
-    # messages_to = relationship(
-    #     "Message",
-    #     secondary=aux_message_email_address,
-    #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='to'),
-    #     secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
-    #     backref="to_emails"
-    # )
 
     # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
@@ -152,30 +120,21 @@ class EmailAddress(db.Model):
         return f'<EmailAddress: {self.email_address}>'
 
     @classmethod
-    def get_or_create(cls, email_str):
+    def get_or_create(cls, email_str, name_str):
         try:
             return EmailAddress.query.filter_by(
                 email_address=email_str).one()
         except NoResultFound:
-            email_address = EmailAddress(email_address=email_str)
+            email_address = EmailAddress(email_address=email_str, name=name_str)
             db.session.add(email_address)
             db.session.commit()
             return email_address
 
 
-# Join Message and EmailAddress tables
-class MessageEmailAddress(db.Model):
-    # __tablename__ = 'message_email_address'
-    
+
+class MessageEmailAddress(db.Model):    
+    # Join Message and EmailAddress tables
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
     email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
-
-    # message = relationship("Message", back_populates="_email_addresses", lazy='dynamic')
-    # email_address = relationship("EmailAddress", back_populates="_messages", lazy='dynamic')
-
-    # message = relationship(Message, backref=backref("message_email_address", cascade="all, delete-orphan"))
-    # email_address = relationship(EmailAddress, backref=backref("message_email_address", cascade="all, delete-orphan"))
-
-# association_table = aliased(MessageEmailAddress)

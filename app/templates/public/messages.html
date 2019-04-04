@@ -2,17 +2,21 @@
   <tr>
     <th>ID</th>
     <th>Snippet</th>
-    <th>Email Address (first)</th>
     <th>From</th>
     <th>To</th>
+    <th>CC</th>
+    <th>BCC</th>
+    <th>Delivered-To</th>
   </tr>
   {% for msg in messages %}
   <tr>
     <td>{{ msg.id }}</td>
-    <td>{{ msg.raw_resource['snippet'][:60] }}</td>
-    <td>{{ msg.email_address }}</td>
+    <td>{{ msg.raw_resource['snippet'][:40] }}</td>
     <td>{{ msg.from_email_address }}</td>
-    <td>{{ msg.to_email_address }}</td>
+    <td>{{ msg.email_addresses('to') }}</td>
+    <td>{{ msg.email_addresses('cc') }}</td>
+    <td>{{ msg.email_addresses('bcc') }}</td>
+    <td>{{ msg.email_addresses('delivered-to') }}</td>
   </tr>
   {% endfor %}
 </table>

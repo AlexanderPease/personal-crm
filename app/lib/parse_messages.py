@@ -9,16 +9,21 @@ def parse_message(message):
     for header_raw in message.raw_resource['payload']['headers']:
         # print('{}: {}'.format(header['name'], header['value']))
         # print('---------')
-        name = header_raw['name'].lower()
+        action = header_raw['name'].lower()
         value = header_raw['value'].lower()
 
-        if not name or not value:
+        if not action or not value:
             continue
 
         # Headers for an EmailAddress object
-        if name in HEADER_ACTIONS:
-            name_str, email_str = parseaddr(value)
-            message.add_email_address(email_str, name)
+        if action in HEADER_ACTIONS:
+            entries = value.split(', ')
+            for entry in entries:
+                name_str, email_str = parseaddr(entry)
+                message.add_email_address(
+                    email_str=email_str,
+                    action=action,
+                    name=name_str)
 
 
         # if name == 'from':
@@ -53,9 +58,9 @@ def parse_message(message):
         #     pass
         # elif name == 'delivered-to':
         #     pass
-        elif name == 'date':
+        elif action == 'date':
             pass
-        elif name == 'subject':
+        elif action == 'subject':
             pass
 
 
