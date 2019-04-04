@@ -1,19 +1,30 @@
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import aliased
 
 from app.models import db
 
 
 # Join Message and EmailAddress tables
-aux_message_email_address = db.Table('message_email_address',
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('message_id', db.Integer, db.ForeignKey('message.id'), nullable=False),
-    db.Column('email_id', db.Integer, db.ForeignKey('email_address.id'), nullable=False),
-    db.Column('action', db.String(), nullable=False)  # Ex. From, To, Bcc
-)
+class MessageEmailAddress(db.Model):
+    # __tablename__ = 'message_email_address'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
+    email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
+    action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
+
+    message = db.relationship("Message", back_populates="email_address")
+    email_address = db.relationship("EmailAddress", back_populates="message")
+
+# association_table = aliased(MessageEmailAddress)
 
 
 class Message(db.Model):
+    __tablename__ = 'message'
+    email_address = db.relationship("MessageEmailAddress", back_populates="message")
+    
+
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
 
@@ -48,6 +59,9 @@ class Message(db.Model):
     header_to_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
     # header_to = db.relationship("MessageEmailAddress", back_populates='message_id')
 
+
+
+
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
@@ -72,26 +86,41 @@ class Message(db.Model):
 
 
 class EmailAddress(db.Model):
+    __tablename__ = 'email_address'
+    message = db.relationship("MessageEmailAddress", back_populates="email_address")
+
+
+
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
-    messages_from = db.relationship(
-        "Message",
-        secondary=aux_message_email_address,
-        primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='from'),
-        secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
-        backref="_from_email"
-    )
 
-    messages_to = db.relationship(
-        "Message",
-        secondary=aux_message_email_address,
-        primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='to'),
-        secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
-        backref="to_emails"
-    )
+    #     messages_from = db.relationship(
+    #     "Message",
+    #     secondary=aux_message_email_address,
+    #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='from'),
+    #     secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
+    #     backref="_from_email"
+    # )
+    # messages_from = db.relationship(
+    #     "Message",
+    #     secondary="MessageEmailAddress",
+    #     primaryjoin=and_(id==MessageEmailAddress.email_id, MessageEmailAddress.action=='from'),
+    #     secondaryjoin=(Message.id==Message.message_id),
+    #     backref="_from_email"
+    # )
+
+    
+
+    # messages_to = db.relationship(
+    #     "Message",
+    #     secondary=aux_message_email_address,
+    #     primaryjoin=and_(id==aux_message_email_address.c.email_id, aux_message_email_address.c.action=='to'),
+    #     secondaryjoin=(Message.id==aux_message_email_address.c.message_id),
+    #     backref="to_emails"
+    # )
 
     # Contact - not yet in use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
