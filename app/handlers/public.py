@@ -10,7 +10,7 @@ from app.lib.parse_messages import parse_message
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
-from app.models.message import Message, EmailAddress
+from app.models.message import Message, EmailAddress, MessageEmailAddress
 from app.models.contact import Contact
 
 
@@ -19,6 +19,15 @@ mod = Blueprint('public', __name__)
 
 @app.route('/')
 def index():
+
+    query = db.session.query(Message, MessageEmailAddress.id).join(MessageEmailAddress, Message.id == MessageEmailAddress.message_id)
+    print(query.statement)
+    values = query.all()
+    for value in values:
+        print(value)
+        print(type(value))
+    return 'Success'
+
     if current_user.is_authenticated:
         service = service_for_user(current_user)
         if service:
@@ -125,7 +134,7 @@ def parse_headers():
 
 
 @app.route('/messages')
-def messages():
+def messages():    
     return render_template('public/messages.html', messages=Message.query.all())
 
 

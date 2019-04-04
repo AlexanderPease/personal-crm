@@ -5,9 +5,15 @@ from sqlalchemy.orm import relationship, backref, aliased
 from app.models import db
 
 
+# Executing basic SQL works, returns Message classes
+# query = db.session.query(Message.id, MessageEmailAddress.id).join(MessageEmailAddress, Message.id == MessageEmailAddress.message_id)
+# print(query.statement)
+# values = query.all()
+# print(values)
+
 class Message(db.Model):
-    # email_address = relationship("MessageEmailAddress", back_populates="message")
-    email_address = relationship("EmailAddress", secondary="message_email_address")
+    email_addresses = relationship("MessageEmailAddress", back_populates="message")
+    # email_address = relationship("EmailAddress", secondary="message_email_address")
     
 
     """A single message."""
@@ -29,7 +35,7 @@ class Message(db.Model):
     headers_raw = db.Column(db.String())
 
     # todo delete header_from_id
-    header_from_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
+    # header_from_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
     
     # Not sure why this didn't work
     # header_from = relationship(
@@ -41,7 +47,7 @@ class Message(db.Model):
     # )
 
     # todo delete header_to_id
-    header_to_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
+    # header_to_id = db.Column(db.Integer, db.ForeignKey('message_email_address.id'))
     # header_to = relationship("MessageEmailAddress", back_populates='message_id')
 
 
@@ -71,8 +77,8 @@ class Message(db.Model):
 
 
 class EmailAddress(db.Model):
-    # message = relationship("MessageEmailAddress", back_populates="email_address")
-    message = relationship("Message", secondary="message_email_address")
+    message = relationship("MessageEmailAddress", back_populates="email_address")
+    # message = relationship("Message", secondary="message_email_address")
 
 
 
@@ -138,13 +144,13 @@ class MessageEmailAddress(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
-    email_address_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
+    email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
 
-    # message = relationship("Message", back_populates="email_address")
-    # email_address = relationship("EmailAddress", back_populates="message")
+    message = relationship("Message", back_populates="email_addresses")
+    email_address = relationship("EmailAddress", back_populates="message")
 
-    message = relationship(Message, backref=backref("message_email_address", cascade="all, delete-orphan"))
-    email_address = relationship(EmailAddress, backref=backref("message_email_address", cascade="all, delete-orphan"))
+    # message = relationship(Message, backref=backref("message_email_address", cascade="all, delete-orphan"))
+    # email_address = relationship(EmailAddress, backref=backref("message_email_address", cascade="all, delete-orphan"))
 
 # association_table = aliased(MessageEmailAddress)
