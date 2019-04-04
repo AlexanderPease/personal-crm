@@ -1,8 +1,7 @@
-from sqlalchemy.orm.exc import NoResultFound
 from email.utils import parseaddr
 
 from app.models import db
-from app.models.message import Message, EmailAddress, MessageEmailAddress
+from app.models.message import Message, EmailAddress
 
 def parse_message(message):
     """Parses Message.raw_headers to populate
@@ -19,26 +18,32 @@ def parse_message(message):
 
         if name == 'from':
             name_str, email_str = parseaddr(value)
-            try:
-                email_address = EmailAddress.query.filter_by(
-                    email_address=email_str).one()
-            except NoResultFound:
-                email_address = EmailAddress(email_address=email_str)
-                db.session.add(email_address)
+            email_address = EmailAddress.get_or_create(email_str)
+
+            if not message._from_email:
+                message._from_email = email_address
+                db.session.add(message)
                 db.session.commit()
 
             # Can only be a single From: per message
-            kwargs = dict(message_id=message.id, action='from')
-            try:
-                MessageEmailAddress.query.filter_by(**kwargs).one()
-            except NoResultFound:
-                new_from = MessageEmailAddress(
-                    email_id=email_address.id, **kwargs
-                )
-                db.session.add(new_from)
-                db.session.commit()
+            # kwargs = dict(message_id=message.id, action='from')
+            # try:
+            #     MessageEmailAddress.query.filter_by(**kwargs).one()
+            # except NoResultFound:
+            #     new_from = MessageEmailAddress(
+            #         email_id=email_address.id, **kwargs
+            #     )
+            #     db.session.add(new_from)
+            #     db.session.commit()
+
         elif name == 'to':
-            pass
+            # To: is a string of comma-delimited addresses
+            addresses = value.split(', ')
+            for address in addresses:
+                name_str, email_str = parseaddr(address)
+                email_address = EmailAddress.get_or_create(email_str)
+                message.add_to_email(email_address)
+
         elif name == 'cc':
             pass
         elif name == 'bcc':
