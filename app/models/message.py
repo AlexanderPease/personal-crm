@@ -38,9 +38,6 @@ class Message(db.Model):
     #     secondaryjoin=(id==aux_message_email_address.c.email_id)
     # )
 
-
-
-
     def __repr__(self):
         return '<Message {}>'.format(self.id)
 
@@ -61,7 +58,7 @@ class Message(db.Model):
 
     def _query_email_addresses(self, **kwargs):
         """Can only query on columns in MessageEmailAddress."""
-        return [assoc.email_address for assoc in self._email_addresses.filter_by(**kwargs).all()]
+        return [a.email_address for a in self._email_addresses.filter_by(**kwargs).all()]
     
 
     def add_email_address(self, email_str, action, name=None):
@@ -73,11 +70,6 @@ class Message(db.Model):
             name: Optional string for name of EmailAddress
 
         """
-        if email_str=='godfred@hansen-nord.dk':
-            print(f'{email_str}')
-            print(f'{action}')
-            print(f'{name}')
-
         if action not in HEADER_ACTIONS:
             print(f'Attempted to add malformed action {action} to {self}')
             return
@@ -86,8 +78,6 @@ class Message(db.Model):
         email_address = EmailAddress.get_or_create(email_str, name)
         kwargs = dict(email_id=email_address.id, action=action)
         pre_existing = self._query_email_addresses(**kwargs)
-        if email_str=='godfred@hansen-nord.dk':
-            print(f'Preexisting relationship: {pre_existing}')
         if pre_existing and len(pre_existing):
             return
 
@@ -118,6 +108,17 @@ class EmailAddress(db.Model):
 
     def __repr__(self):
         return f'<EmailAddress: {self.email_address}>'
+
+    def messages(self, action=None, **kwargs):
+        """All Message objects associated with this EmailAddress."""
+        if action and action in HEADER_ACTIONS:
+            kwargs['action'] = action
+        
+        return self._query_messages(**kwargs)
+
+    def _query_messages(self, **kwargs):
+        """Can only query on columns in MessageEmailAddress."""
+        return [a.message for a in self._messages.filter_by(**kwargs).all()]
 
     @classmethod
     def get_or_create(cls, email_str, name_str):

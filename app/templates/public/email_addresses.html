@@ -1,12 +1,22 @@
 <table>
   <tr>
     <th>Email Address</th>
-    <th>Messages From</th>
+    <th>Messages</th>
+    <th>From</th>
+    <th>To</th>
+    <th>CC</th>
+    <th>BCC</th>
+    <th>Delivered-To</th>
   </tr>
   {% for email in email_addresses %}
   <tr>
     <td>{{ email.email_address }}</td>
-    <td>{{ email.messages_from }}</td>
+    <td>{{ email.messages() | length }}</td>
+    <td>{{ email.messages('from') | length }}</td>
+    <td>{{ email.messages('to') | length }}</td>
+    <td>{{ email.messages('cc') | length }}</td>
+    <td>{{ email.messages('bcc') | length }}</td>
+    <td>{{ email.messages('delivered-to') | length }}</td>
   </tr>
   {% endfor %}
 </table>
