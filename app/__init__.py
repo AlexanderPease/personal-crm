@@ -7,18 +7,22 @@ from flask_migrate import Migrate
 from app.config import CONFIG_MAPPING
 from app.models import db
 
-app = Flask(__name__)
+# Is this necessary?
+# app = Flask(__name__)
 
 
 ###############################################################################
 # Config
 ###############################################################################
 def register_config(app):
+    # Instantiate app for nose tests
+    if os.environ.get('NOSE_TESTS'):
+        print('running test config')
+        app.config.from_object('test')
+        return
+
+    # Prod, dev, and local instantiation
     environment = os.environ.get('FLASK_ENV', 'development')
-
-    # if app.config.get('TESTING'):
-    #     app.config.from_pyfile('config_test.py')
-
     app.config.from_object(
         CONFIG_MAPPING.get(environment)
     )

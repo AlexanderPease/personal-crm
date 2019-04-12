@@ -4,6 +4,7 @@ import time
 from nose.tools import assert_equals
 
 from app import app
+from app.config import TestConfig
 from app.models import db
 from app.models.message import Message, EmailAddress
 
@@ -12,25 +13,34 @@ class TestMessage:
 
     @classmethod
     def setup_class(cls):
-        # Gets non-.env config vars
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/crm-test'
-        # print(app.config)
-        
-
-        with app.app_context():
-            time.sleep(2)
-
-
+        os.environ['NOSE_TESTS'] = 'true'  # not being set...
 
     def setup(self):
-        pass
+        # Not correctly setting env variables, or at least __init__ isn't seeing it...
+        # os.environ['NOSE_TESTS'] = 'true'
+        
+        self.app = app.test_client()
+        
+        # ...hack around config
+        self.app.application.config.from_object(TestConfig)
+        
+
+    def test_flask(self):
+        result = self.app.get('/')
+        assert_equals(result.status_code, 200)
 
     def test_init(self):
+        print('test_init')
+
         message = Message(thread_id=1)
         assert_equals(message.thread_id, 1)
+        print(self.app.application.config)
+        print(self.app.application)
+        print(self.app.application.app_context)
         
-        db.session.add(message)
-        db.session.commit()
-        assert_equals(
-            len(Message.query.all()), 1
-        )
+        with self.app.application.app_context():
+            db.session.add(message)
+            db.session.commit()
+            assert_equals(
+                len(Message.query.all()), 1
+            )
