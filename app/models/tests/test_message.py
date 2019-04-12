@@ -24,6 +24,13 @@ class TestMessage:
         # ...hack around config
         self.app.application.config.from_object(TestConfig)
         
+        with self.app.application.app_context():
+            db.create_all()
+
+    def teardown(self):
+        with self.app.application.app_context():
+            db.drop_all()
+        
 
     def test_flask(self):
         result = self.app.get('/')
