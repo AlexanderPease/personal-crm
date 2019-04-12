@@ -17,7 +17,7 @@ from app.models import db
 def register_config(app):
     # Instantiate app for nose tests
     if os.environ.get('NOSE_TESTS'):
-        print('running test config')
+        print('running test config')  # not happening
         app.config.from_object('test')
         return
 

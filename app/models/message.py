@@ -13,6 +13,7 @@ from app.models import db
 
 HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 
+
 class Message(db.Model):
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
@@ -27,8 +28,9 @@ class Message(db.Model):
     # Raw Gmail.Resource dict, includes everything about message
     raw_resource = db.Column(db.JSON())
 
-    _email_addresses = relationship("MessageEmailAddress", lazy='dynamic', backref=backref("message"))
-    
+    _email_addresses = relationship(
+        "MessageEmailAddress", lazy='dynamic', backref=backref("message"))
+
     # Not sure why this didn't work
     # header_from = relationship(
     #     "EmailAddress",
@@ -45,7 +47,7 @@ class Message(db.Model):
         """All EmailAddress objects in the headers of this message."""
         if action and action not in HEADER_ACTIONS:
             return
-        
+
         return self._query_email_addresses(action=action, **kwargs)
 
     @property
@@ -59,7 +61,6 @@ class Message(db.Model):
     def _query_email_addresses(self, **kwargs):
         """Can only query on columns in MessageEmailAddress."""
         return [a.email_address for a in self._email_addresses.filter_by(**kwargs).all()]
-    
 
     def add_email_address(self, email_str, action, name=None):
         """Setter method for all related EmailAddress objects.
@@ -113,7 +114,7 @@ class EmailAddress(db.Model):
         """All Message objects associated with this EmailAddress."""
         if action and action in HEADER_ACTIONS:
             kwargs['action'] = action
-        
+
         return self._query_messages(**kwargs)
 
     def _query_messages(self, **kwargs):
@@ -126,16 +127,20 @@ class EmailAddress(db.Model):
             return EmailAddress.query.filter_by(
                 email_address=email_str).one()
         except NoResultFound:
-            email_address = EmailAddress(email_address=email_str, name=name_str)
+            email_address = EmailAddress(
+                email_address=email_str,
+                name=name_str
+            )
             db.session.add(email_address)
             db.session.commit()
             return email_address
 
 
-
-class MessageEmailAddress(db.Model):    
+class MessageEmailAddress(db.Model):
     # Join Message and EmailAddress tables
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=False)
-    email_id = db.Column(db.Integer, db.ForeignKey('email_address.id'), nullable=False)
+    message_id = db.Column(
+        db.Integer, db.ForeignKey('message.id'), nullable=False)
+    email_id = db.Column(
+        db.Integer, db.ForeignKey('email_address.id'), nullable=False)
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
