@@ -6,9 +6,17 @@ from flask_migrate import Migrate
 
 from app.config import CONFIG_MAPPING
 from app.models import db
+from app.api import api
+# from app.api.message import Message, MessageList
 
-# Is this necessary?
-# app = Flask(__name__)
+
+from flask_restful import Resource
+from app.models.message import Message
+
+
+class MessageList(Resource):
+    def get(self):
+        return Message.query.all()
 
 
 ###############################################################################
@@ -36,11 +44,21 @@ def register_db(app):
 
 
 def register_blueprints(app):
+    # API
+    api.init_app(app)
+
+    from app.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
+
+    # api.add_resource(MessageList, '/message')
+    # api.add_resource(Message, '/message/<message_id>')
+
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
 
 
 def register_extensions(app):
+    # Login
     login_manager = LoginManager()
     # login_manager.login_view = 'login.login'
     # login_manager.refresh_view = 'login.reauthenticate'

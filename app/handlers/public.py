@@ -10,8 +10,7 @@ from app.lib.parse_messages import parse_message
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
-from app.models.message import Message, EmailAddress, MessageEmailAddress
-from app.models.contact import Contact
+from app.models.message import Message, EmailAddress
 
 
 mod = Blueprint('public', __name__)
@@ -73,7 +72,6 @@ def auth():
         db.session.add(mailbox)
         db.session.commit()
 
-
     return redirect(url_for('index'))
 
 
@@ -98,7 +96,7 @@ def get_messages():
 
     service = GmailService(current_user)
     mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
-    
+
     messages = service.list_messages()
 
     for msg in messages:
@@ -125,11 +123,13 @@ def parse_headers():
 
 
 @app.route('/messages')
-def messages():    
-    return render_template('public/messages.html', messages=Message.query.all())
+def messages():
+    return render_template(
+        'public/messages.html', messages=Message.query.all())
 
 
 @app.route('/emails')
 def emails():
-    return render_template('public/email_addresses.html', email_addresses=EmailAddress.query.all())
-
+    return render_template(
+        'public/email_addresses.html',
+        email_addresses=EmailAddress.query.all())

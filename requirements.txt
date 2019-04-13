@@ -1,4 +1,5 @@
 alembic==1.0.8
+aniso8601==6.0.0
 beautifulsoup4==4.7.1
 cachetools==3.1.0
 certifi==2019.3.9
@@ -8,6 +9,7 @@ coverage==4.5.3
 Flask==1.0.2
 Flask-Login==0.4.1
 Flask-Migrate==2.4.0
+Flask-RESTful==0.3.7
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
 google==2.0.2
@@ -29,6 +31,7 @@ pyasn1-modules==0.2.4
 python-dateutil==2.8.0
 python-dotenv==0.10.1
 python-editor==1.0.4
+pytz==2019.1
 requests==2.21.0
 requests-oauthlib==1.2.0
 rsa==4.0
