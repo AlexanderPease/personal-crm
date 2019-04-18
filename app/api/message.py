@@ -12,8 +12,8 @@ parser.add_argument('id')
 
 
 class MessageAPI(Resource):
-    def get(self, message_id):
-        message = get_or_abort(Message, message_id)
+    def get(self, obj_id):
+        message = get_or_abort(Message, obj_id)
         return message_schema.dump(message).data
 
 

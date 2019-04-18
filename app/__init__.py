@@ -50,9 +50,6 @@ def register_blueprints(app):
     from app.api import api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
 
-    # api.add_resource(MessageList, '/message')
-    # api.add_resource(Message, '/message/<message_id>')
-
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
 

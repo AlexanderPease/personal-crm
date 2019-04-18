@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, pre_load, validate
+from marshmallow_sqlalchemy import ModelSchema
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship, backref, aliased
@@ -97,6 +98,11 @@ class MessageSchema(ma.Schema):
     thread_id = fields.String()
 
 
+# class MessageSchema(ModelSchema):
+#     class Meta:
+#         model = Message
+
+
 class EmailAddress(db.Model):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
@@ -144,6 +150,13 @@ class EmailAddress(db.Model):
             return email_address
 
 
+class EmailAddressSchema(ma.Schema):
+    id = fields.Integer()
+    email_address = fields.String()
+    name = fields.String()
+    messages = fields.String()
+    # _messages = fields.Nested("MessageEmailAddressSchema")
+
 class MessageEmailAddress(db.Model):
     # Join Message and EmailAddress tables
     id = db.Column(db.Integer, primary_key=True)
@@ -152,3 +165,11 @@ class MessageEmailAddress(db.Model):
     email_id = db.Column(
         db.Integer, db.ForeignKey('email_address.id'), nullable=False)
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
+
+
+class MessageEmailAddressSchema(ma.Schema):
+    id = fields.Integer()
+    message_id = fields.String()
+    email_id = fields.String()
+    action = fields.String()
+
