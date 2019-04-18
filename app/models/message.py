@@ -98,8 +98,8 @@ class EmailAddress(db.Model):
     _messages = relationship("MessageEmailAddress", lazy='dynamic', backref=backref("email_address"))
 
     # Contact - not yet in use
-    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    contact = relationship("Contact", back_populates="email_addresses")
+    # contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
+    # contact = relationship("Contact", back_populates="email_addresses")
 
     def __init__(self, **kwargs):
         super(EmailAddress, self)
