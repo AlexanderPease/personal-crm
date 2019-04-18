@@ -12,8 +12,8 @@ class Mailbox(db.Model):
     domain = db.Column(db.String(), nullable=False)
 
     # Mailbox has many messages
-    messages = db.relationship(
-        "Message", back_populates="mailbox")
+    # messages = db.relationship(
+    #     "Message", back_populates="mailbox")
 
     # TODO this was not populated correctly in /auth
     # A CRM User can have multiple mailboxes

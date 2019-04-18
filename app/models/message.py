@@ -18,11 +18,13 @@ HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 
 class Message(db.Model):
     """A single message."""
+    __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
-    mailbox = relationship("Mailbox", back_populates="messages")
+    # mailbox = relationship("Mailbox", backref="messages")
 
     # Gmail
     message_id = db.Column(db.String(), unique=True)
@@ -30,17 +32,45 @@ class Message(db.Model):
     # Raw Gmail.Resource dict, includes everything about message
     raw_resource = db.Column(db.JSON())
 
+    # Is there a way to dynamically create these?
     _email_addresses = relationship(
-        "MessageEmailAddress", lazy='dynamic', backref=backref("message"))
-
-    # Not sure why this didn't work
-    # header_from = relationship(
-    #     "EmailAddress",
-    #     # uselist=False,
-    #     secondary=aux_message_email_address,
-    #     primaryjoin=and_(id==aux_message_email_address.c.message_id, aux_message_email_address.c.action=='from'),
-    #     secondaryjoin=(id==aux_message_email_address.c.email_id)
-    # )
+        "EmailAddress",
+        secondary="message_email_address", lazy='dynamic', backref=backref("_messages", lazy='dynamic'))
+    _email_addresses_from = relationship(
+        "EmailAddress",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='to')",
+        secondary="message_email_address",
+        lazy='dynamic',
+        backref=backref('_messages_from', lazy='dynamic')
+    )
+    _email_addresses_to = relationship(
+        "EmailAddress",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
+        secondary="message_email_address",
+        lazy='dynamic',
+        backref=backref('_messages_to', lazy='dynamic')
+    )
+    _email_addresses_cc = relationship(
+        "EmailAddress",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='cc')",
+        secondary="message_email_address",
+        lazy='dynamic',
+        backref=backref('_messages_cc', lazy='dynamic')
+    )
+    _email_addresses_bcc = relationship(
+        "EmailAddress",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='bcc')",
+        secondary="message_email_address",
+        lazy='dynamic',
+        backref=backref('_messages_bcc', lazy='dynamic')
+    )
+    _email_addresses_delivered_to = relationship(
+        "EmailAddress",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='delivered-to')",
+        secondary="message_email_address",
+        lazy='dynamic',
+        backref=backref('_messages_delivered_to', lazy='dynamic')
+    )
 
     def __repr__(self):
         return '<Message {}>'.format(self.id)
@@ -49,20 +79,20 @@ class Message(db.Model):
         """All EmailAddress objects in the headers of this message."""
         if action and action not in HEADER_ACTIONS:
             return
+        elif action:
+            email_addresses = getattr(self, '_email_addresses_' + action.replace('-', '_'))
+        else:
+            email_addresses = self._email_addresses
 
-        return self._query_email_addresses(action=action, **kwargs)
+        return email_addresses.filter_by(**kwargs).all()
 
     @property
     def from_email_address(self):
         """Returns the single EmailAddress in From: header."""
         try:
-            return self._query_email_addresses(action='from')[0]
+            return self._email_addresses_from[0]
         except:
             pass
-
-    def _query_email_addresses(self, **kwargs):
-        """Can only query on columns in MessageEmailAddress."""
-        return [a.email_address for a in self._email_addresses.filter_by(**kwargs).all()]
 
     def add_email_address(self, email_str, action, name=None):
         """Setter method for all related EmailAddress objects.
@@ -96,20 +126,27 @@ class MessageSchema(ma.Schema):
     mailbox = fields.String()
     message_id = fields.String()
     thread_id = fields.String()
+    email_addresses = fields.String()
 
 
 # class MessageSchema(ModelSchema):
 #     class Meta:
 #         model = Message
+#         exclude = ("message_email_address", )
 
 
+
+################################################################################
+# Email Address
+################################################################################
 class EmailAddress(db.Model):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
-    _messages = relationship("MessageEmailAddress", lazy='dynamic', backref=backref("email_address"))
+    # Relationships to Message:
+    # _messages, _messages_from, _messages_to, etc.
 
     # Contact - not yet in use
     # contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
@@ -125,15 +162,15 @@ class EmailAddress(db.Model):
         return f'<EmailAddress: {self.email_address}>'
 
     def messages(self, action=None, **kwargs):
-        """All Message objects associated with this EmailAddress."""
-        if action and action in HEADER_ACTIONS:
-            kwargs['action'] = action
+        """All Messages objects of header action."""
+        if action and action not in HEADER_ACTIONS:
+            return
+        elif action:
+            messages = getattr(self, '_messages_' + action.replace('-', '_'))
+        else:
+            messages = self._messages
 
-        return self._query_messages(**kwargs)
-
-    def _query_messages(self, **kwargs):
-        """Can only query on columns in MessageEmailAddress."""
-        return [a.message for a in self._messages.filter_by(**kwargs).all()]
+        return messages.filter_by(**kwargs).all()
 
     @classmethod
     def get_or_create(cls, email_str, name_str):
@@ -157,6 +194,11 @@ class EmailAddressSchema(ma.Schema):
     messages = fields.String()
     # _messages = fields.Nested("MessageEmailAddressSchema")
 
+
+
+################################################################################
+# Join table
+################################################################################
 class MessageEmailAddress(db.Model):
     # Join Message and EmailAddress tables
     id = db.Column(db.Integer, primary_key=True)
@@ -165,6 +207,9 @@ class MessageEmailAddress(db.Model):
     email_id = db.Column(
         db.Integer, db.ForeignKey('email_address.id'), nullable=False)
     action = db.Column(db.String(), nullable=False)  # Ex. From, To, Bcc
+
+    message = db.relationship("Message", backref=backref("message_email_address", lazy='dynamic'))
+    email_address = db.relationship("EmailAddress", backref=backref("message_email_address", lazy='dynamic'))
 
 
 class MessageEmailAddressSchema(ma.Schema):

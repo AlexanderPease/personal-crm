@@ -40,6 +40,9 @@ def register_config(app):
 
 def register_db(app):
     db.init_app(app)
+    # if app.config.get('FLASK_DEBUG'):
+        # db.metadata.clear()  # Avoid manual reloading
+
     Migrate(app, db, compare_type=True)
 
 
