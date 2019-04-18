@@ -1,8 +1,9 @@
+from marshmallow import Schema, fields, pre_load, validate
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship, backref, aliased
 
-from app.models import db
+from app.models import db, ma
 
 
 # Executing basic SQL works, returns Message classes
@@ -87,6 +88,13 @@ class Message(db.Model):
         self._email_addresses.append(a)
         db.session.add(self)
         db.session.commit()
+
+
+class MessageSchema(ma.Schema):
+    id = fields.Integer()
+    mailbox = fields.String()
+    message_id = fields.String()
+    thread_id = fields.String()
 
 
 class EmailAddress(db.Model):

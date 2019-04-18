@@ -1,36 +1,23 @@
 from flask_restful import Resource, reqparse, abort
 
-from app.models.message import Message as _Message
+from app.lib.api import get_or_abort
+from app.models.message import Message, MessageSchema
 
-
-def abort_if_dne(cls, _id):
-    if not cls.query.get(_id):
-        abort(
-            404,
-            message=f"{cls.__classname__} {_id} doesn't exist"
-        )
+message_schema = MessageSchema()
+messages_schema = MessageSchema(many=True)
 
 
 parser = reqparse.RequestParser()
 parser.add_argument('id')
 
 
-class Message(Resource):
+class MessageAPI(Resource):
     def get(self, message_id):
-        abort_if_dne(_Message, message_id)
-        return TODOS[todo_id]
-
-    def delete(self, message_id):
-        abort_if_dne(_Message, message_id)
-        # del TODOS[todo_id]
-        return '', 204
-
-    def put(self, message_id):
-        args = parser.parse_args()
-        # task = {'id': args['task']}
-        return '', 201
+        message = get_or_abort(Message, message_id)
+        return message_schema.dump(message).data
 
 
-class MessageList(Resource):
+class MessageListAPI(Resource):
     def get(self):
-        return _Message.query.all()
+        messages = Message.query.all()
+        return messages_schema.dump(messages).data
