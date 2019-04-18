@@ -18,8 +18,6 @@ HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 
 class Message(db.Model):
     """A single message."""
-    __table_args__ = {'extend_existing': True}
-
     id = db.Column(db.Integer, primary_key=True)
 
     # Many Messages for a single Mailbox
@@ -121,19 +119,22 @@ class Message(db.Model):
         db.session.commit()
 
 
+class EmailAddressMessageSchema(ma.Schema):
+    id = fields.Integer()
+    email_address = fields.String()
+    name = fields.String()
+
+# NB: ModelSchema doesn't play nice with relationships
 class MessageSchema(ma.Schema):
     id = fields.Integer()
     mailbox = fields.String()
     message_id = fields.String()
     thread_id = fields.String()
-    email_addresses = fields.String()
-
-
-# class MessageSchema(ModelSchema):
-#     class Meta:
-#         model = Message
-#         exclude = ("message_email_address", )
-
+    email_addresses = fields.Nested(
+        'EmailAddressSchema',
+        attribute='email_addresses',
+        only=('id', 'name', 'email_address'),
+        many=True)
 
 
 ################################################################################
@@ -195,7 +196,6 @@ class EmailAddressSchema(ma.Schema):
     # _messages = fields.Nested("MessageEmailAddressSchema")
 
 
-
 ################################################################################
 # Join table
 ################################################################################
@@ -210,11 +210,3 @@ class MessageEmailAddress(db.Model):
 
     message = db.relationship("Message", backref=backref("message_email_address", lazy='dynamic'))
     email_address = db.relationship("EmailAddress", backref=backref("message_email_address", lazy='dynamic'))
-
-
-class MessageEmailAddressSchema(ma.Schema):
-    id = fields.Integer()
-    message_id = fields.String()
-    email_id = fields.String()
-    action = fields.String()
-
