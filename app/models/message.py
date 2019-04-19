@@ -34,14 +34,14 @@ class Message(db.Model):
         secondary="message_email_address", lazy='dynamic', backref=backref("_messages", lazy='dynamic'))
     _email_addresses_from = relationship(
         "EmailAddress",
-        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='to')",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
         secondary="message_email_address",
         lazy='dynamic',
         backref=backref('_messages_from', lazy='dynamic')
     )
     _email_addresses_to = relationship(
         "EmailAddress",
-        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
+        primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='to')",
         secondary="message_email_address",
         lazy='dynamic',
         backref=backref('_messages_to', lazy='dynamic')
@@ -104,17 +104,20 @@ class Message(db.Model):
             return
 
         # Ensure connection between Message, EmailAddress, and action is unique
-        email_address = EmailAddress.get_or_create(email_str, name)
-        kwargs = dict(email_id=email_address.id, action=action)
-        pre_existing = self._query_email_addresses(**kwargs)
+        pre_existing = getattr(self, '_email_addresses_' + action).filter_by(email_address=email_str).all()
+        
+        # kwargs = dict(email_id=email_address.id, action=action)
+        # pre_existing = self.message_email_address(**kwargs)
         if pre_existing and len(pre_existing):
             return
 
         # Add new connection
-        a = MessageEmailAddress(**kwargs)
-        self._email_addresses.append(a)
-        db.session.add(self)
+        email_address = EmailAddress.get_or_create(email_str, name)
+        a = MessageEmailAddress(message_id=self.id, email_id=email_address.id, action=action)
+        db.session.add(a)
         db.session.commit()
+
+        return email_address
 
 
 ################################################################################
@@ -169,7 +172,7 @@ class EmailAddress(db.Model):
 
 
 ################################################################################
-# Join table
+# Association table
 ################################################################################
 class MessageEmailAddress(db.Model):
     # Join Message and EmailAddress tables

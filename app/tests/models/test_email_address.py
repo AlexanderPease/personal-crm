@@ -1,11 +1,11 @@
 from nose.tools import assert_equals
+from sqlalchemy.exc import IntegrityError
 
 from app import app
 from app.models import db
 from app.models.message import EmailAddress
 from app.tests.models import TestModelBase
 
-ITERATIONS = 99
 
 class TestEmailAddress(TestModelBase):
     model = EmailAddress
@@ -25,8 +25,19 @@ class TestEmailAddress(TestModelBase):
 
     def test_add_multiple(self):
         with self.app.application.app_context():
-            for i in range(1, ITERATIONS):
+            for i in range(1, self.iterations):
                 self.add(email_address=f'test{i}@test.com')
+
+    def test_add_idempotent(self):
+        with self.app.application.app_context():
+            self.add(email_address=f'test@test.com')
+            try:
+                self.add(email_address=f'test@test.com')
+            except IntegrityError:
+                db.session.rollback()
+            assert_equals(
+                len(EmailAddress.query.all()), 1
+            )
 
     def test_unique(self):
         with self.app.application.app_context():

@@ -7,6 +7,7 @@ from app.models import db
 
 class TestBase:
     """Base class for tests."""
+    iterations = 99  # Default number of iterations
 
     @classmethod
     def setup_class(cls):
