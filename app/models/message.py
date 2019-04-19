@@ -136,8 +136,9 @@ class EmailAddress(db.Model, ModelMixin):
     # contact = relationship("Contact", back_populates="email_addresses")
 
     def __init__(self, **kwargs):
-        super(EmailAddress, self)
+        super().__init__()
 
+        self.name = kwargs.get('name')
         if 'email_address' in kwargs.keys():
             self.email_address = kwargs['email_address'].lower()
 

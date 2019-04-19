@@ -14,8 +14,10 @@ class TestEmailAddress(TestModelBase):
         with self.app.application.app_context():
             # Add first
             email_str = "test@test.com"
-            ea = EmailAddress(email_address=email_str)
+            name_str = "Sample Name"
+            ea = EmailAddress(email_address=email_str, name=name_str)
             assert_equals(ea.email_address, email_str)
+            assert_equals(ea.name, name_str)
             
             db.session.add(ea)
             db.session.commit()

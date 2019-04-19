@@ -10,7 +10,7 @@ def parse_message(message):
         # print('{}: {}'.format(header['name'], header['value']))
         # print('---------')
         action = header_raw['name'].lower()
-        value = header_raw['value'].lower()
+        value = header_raw['value']
 
         if not action or not value:
             continue
@@ -21,10 +21,11 @@ def parse_message(message):
             for entry in entries:
                 name_str, email_str = parseaddr(entry)
                 message.add_email_address(
-                    email_str=email_str,
+                    email_str=email_str.lower(),
                     action=action,
                     name=name_str)
         elif action == 'date':
             pass
         elif action == 'subject':
             pass
+    return message

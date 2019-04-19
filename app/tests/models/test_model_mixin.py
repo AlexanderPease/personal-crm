@@ -24,7 +24,7 @@ class TestModelMixin(TestModelBase):
                 len(self.model.query.all()), 1
             )
 
-            # Basic get - should not create a second, idential obj
+            # Basic get - should not create a second, identical obj
             obj = self.model.get_or_create(**unique_kwargs)
             assert_equals(obj.id, 1)
             assert_equals(obj.message_id, message_id)

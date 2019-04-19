@@ -45,9 +45,10 @@ class TestMessage(TestModelBase):
                 len(MessageEmailAddress.query.all()), 0
             )
 
-            # From
-            msg.add_email_address('from@test.com', 'from')
+            # From and EmailAddress.name
+            msg.add_email_address('from@test.com', 'from', name='From Name')
             assert_equals(msg.from_email_address.email_address, 'from@test.com')
+            assert_equals(msg.from_email_address.name, 'From Name')
 
             # To
             msg.add_email_address('to@test.com', 'to')
