@@ -52,16 +52,12 @@ def get_message():
 
     service = GmailService(current_user)
     mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
+    messages = Message.query.filter(mailbox=mailbox).all()
 
     for msg in messages:
-        msg = service.get_message(msg['id'])
-        message = Message(
-            message_id=msg['id'],
-            thread_id=msg['threadId'],
-            mailbox_id=mailbox.id,
-            raw_resource=msg
-        )
-        db.session.add(message)
+        raw_msg = service.get_message(msg['id'])
+        msg.raw_resource = raw_msg
+        db.session.add(msg)
         db.session.commit()
 
 
