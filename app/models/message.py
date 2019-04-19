@@ -106,13 +106,12 @@ class Message(db.Model, ModelMixin):
         action_prop = '_email_addresses_' + action.replace('-', '_')
         pre_existing = getattr(self, action_prop).filter_by(email_address=email_str).all()
         
-        # kwargs = dict(email_id=email_address.id, action=action)
-        # pre_existing = self.message_email_address(**kwargs)
         if pre_existing and len(pre_existing):
             return
 
         # Add new connection
-        email_address = EmailAddress.get_or_create(email_str, name)
+        email_address = EmailAddress.get_or_create(
+            email_address=email_str, create_kwargs=dict(name=name))
         a = MessageEmailAddress(message_id=self.id, email_id=email_address.id, action=action)
         db.session.add(a)
         db.session.commit()
