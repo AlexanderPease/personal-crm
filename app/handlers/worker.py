@@ -30,8 +30,10 @@ def list_messages():
     for msg in messages:
         message = Message.get_or_create(
             message_id=msg['id'],
-            thread_id=msg['threadId'],
-            mailbox_id=mailbox.id
+            create_kwargs=dict(
+                thread_id=msg['threadId'],
+                mailbox_id=mailbox.id
+            )
         )
         try:
             db.session.add(message)

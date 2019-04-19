@@ -13,8 +13,8 @@ class ModelMixin(object):
     @classmethod
     def get_or_create(cls, create_kwargs=dict(), **kwargs):
         """
-        Assumes all kwargs are applicable for both get and create
-        Uses create dictionary only when creating a new instance.  
+        Assumes all kwargs are applicable for both get and create.
+        create_kwargs used only when creating a new instance.  
         """
         try:
             return cls.query.filter_by(**kwargs).one()

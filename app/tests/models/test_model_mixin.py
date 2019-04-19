@@ -60,4 +60,3 @@ class TestModelMixin(TestModelBase):
             assert_equals(
                 len(self.model.query.all()), 2
             )
-
