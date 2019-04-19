@@ -6,7 +6,7 @@ from flask_login import current_user, login_user, logout_user
 from app.lib.google_auth import (
     auth_credentials, service_for_user, credentials_to_dict)
 from app.lib.gmail import GmailService
-from app.lib.parse_messages import parse_message
+from app.lib.parse_message import parse_message
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox

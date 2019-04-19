@@ -1,14 +1,14 @@
 from nose.tools import assert_equals
 
 from app import app
-from app.lib.parse_messages import parse_message
+from app.lib.parse_message import parse_message
 from app.models import db
 from app.models.message import Message, EmailAddress
 from app.tests import TestBase
 
 
 class TestParseMessages(TestBase):
-    """Tests app/lib/parse_messages.py functions."""
+    """Tests app/lib/parse_message.py functions."""
 
     def test_parse_headers(self):
         with self.app.application.app_context():

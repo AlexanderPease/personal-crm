@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user
 
 from app.lib.gmail import GmailService
-from app.lib.parse_messages import parse_message
+from app.lib.parse_message import parse_message
 from app.models import db
 from app.models.mailbox import Mailbox
 from app.models.message import Message
