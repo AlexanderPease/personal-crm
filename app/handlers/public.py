@@ -89,39 +89,6 @@ def logout():
     session.clear()
 
 
-@app.route('/gmail')
-def get_messages():
-    if not current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    service = GmailService(current_user)
-    mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
-
-    messages = service.list_messages()
-
-    for msg in messages:
-        msg = service.get_message(msg['id'])
-        message = Message(
-            message_id=msg['id'],
-            thread_id=msg['threadId'],
-            mailbox_id=mailbox.id,
-            raw_resource=msg
-        )
-        db.session.add(message)
-        db.session.commit()
-
-    return 'Success'
-
-
-@app.route('/parse')
-def parse_headers():
-    messages = Message.query.all()
-    for message in messages:
-        parse_message(message)
-
-    return 'Success'
-
-
 @app.route('/message')
 def messages():
     return render_template(

@@ -55,18 +55,18 @@ class GmailService(object):
         returned list contains Message IDs, you must use get with the
         appropriate ID to get the details of a Message.
         """
+        kwargs = dict(userId=self.user_id, q=query)
         try:
-            response = self.service.users().messages().list(
-                userId=self.user_id, q=query).execute()
+            response = self.service.users().messages().list(**kwargs).execute()
             messages = []
             if 'messages' in response:
                 messages.extend(response['messages'])
 
-            # while 'nextPageToken' in response:
-            #     page_token = response['nextPageToken']
-            #     response = service.users().messages().list(
-            #         userId=user_id, q=query, pageToken=page_token).execute()
-            #     messages.extend(response['messages'])
+            while 'nextPageToken' in response:
+                page_token = response['nextPageToken']
+                response = self.service.users().messages().list(
+                    pageToken=page_token, **kwargs).execute()
+                messages.extend(response['messages'])
 
             return messages
         except Exception as e:

@@ -1,8 +1,7 @@
 from sqlalchemy import and_
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship, backref, aliased
 
-from app.models import db
+from app.models import db, ModelMixin
 
 
 # Executing basic SQL works, returns Message classes
@@ -14,7 +13,7 @@ from app.models import db
 HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 
 
-class Message(db.Model):
+class Message(db.Model, ModelMixin):
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
 
@@ -123,7 +122,7 @@ class Message(db.Model):
 ################################################################################
 # Email Address
 ################################################################################
-class EmailAddress(db.Model):
+class EmailAddress(db.Model, ModelMixin):
     """A single email address."""
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(), nullable=False, unique=True)
@@ -155,20 +154,6 @@ class EmailAddress(db.Model):
             messages = self._messages
 
         return messages.filter_by(**kwargs).all()
-
-    @classmethod
-    def get_or_create(cls, email_str, name_str):
-        try:
-            return EmailAddress.query.filter_by(
-                email_address=email_str).one()
-        except NoResultFound:
-            email_address = EmailAddress(
-                email_address=email_str,
-                name=name_str
-            )
-            db.session.add(email_address)
-            db.session.commit()
-            return email_address
 
 
 ################################################################################

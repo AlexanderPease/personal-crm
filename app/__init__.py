@@ -46,6 +46,9 @@ def register_blueprints(app):
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
 
+    from app.handlers.worker import mod as worker_module
+    app.register_blueprint(worker_module)
+
 
 def register_extensions(app):
     # Login
