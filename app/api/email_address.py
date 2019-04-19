@@ -14,11 +14,11 @@ parser.add_argument('id')
 
 class EmailAddressAPI(Resource):
     def get(self, obj_id):
-        message = get_or_abort(EmailAddress, obj_id)
+        email_address = get_or_abort(EmailAddress, obj_id)
         return schema.dump(email_address).data
 
 
 class EmailAddressListAPI(Resource):
     def get(self):
         email_addresses = EmailAddress.query.all()
-        return schema_many.dump(email_addresses).data
+        return schema_many.dump(email_addresses)
