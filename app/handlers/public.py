@@ -122,14 +122,14 @@ def parse_headers():
     return 'Success'
 
 
-@app.route('/messages')
+@app.route('/message')
 def messages():
     return render_template(
         'public/messages.html', messages=Message.query.all())
 
 
-@app.route('/emails')
-def emails():
+@app.route('/email-address')
+def email_addresss():
     return render_template(
         'public/email_addresses.html',
         email_addresses=EmailAddress.query.all())

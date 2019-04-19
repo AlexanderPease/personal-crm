@@ -1,7 +1,8 @@
 from flask_restful import Resource, reqparse, abort
 
 from app.lib.api import get_or_abort
-from app.models.message import EmailAddress, EmailAddressSchema
+from app.schema.email_address import EmailAddressSchema
+from app.models.message import EmailAddress
 
 schema = EmailAddressSchema()
 schema_many = EmailAddressSchema(many=True)

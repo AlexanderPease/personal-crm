@@ -1,10 +1,8 @@
-from marshmallow import Schema, fields, pre_load, validate
-from marshmallow_sqlalchemy import ModelSchema
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship, backref, aliased
 
-from app.models import db, ma
+from app.models import db
 
 
 # Executing basic SQL works, returns Message classes
@@ -119,24 +117,6 @@ class Message(db.Model):
         db.session.commit()
 
 
-class EmailAddressMessageSchema(ma.Schema):
-    id = fields.Integer()
-    email_address = fields.String()
-    name = fields.String()
-
-# NB: ModelSchema doesn't play nice with relationships
-class MessageSchema(ma.Schema):
-    id = fields.Integer()
-    mailbox = fields.String()
-    message_id = fields.String()
-    thread_id = fields.String()
-    email_addresses = fields.Nested(
-        'EmailAddressSchema',
-        attribute='email_addresses',
-        only=('id', 'name', 'email_address'),
-        many=True)
-
-
 ################################################################################
 # Email Address
 ################################################################################
@@ -186,14 +166,6 @@ class EmailAddress(db.Model):
             db.session.add(email_address)
             db.session.commit()
             return email_address
-
-
-class EmailAddressSchema(ma.Schema):
-    id = fields.Integer()
-    email_address = fields.String()
-    name = fields.String()
-    messages = fields.String()
-    # _messages = fields.Nested("MessageEmailAddressSchema")
 
 
 ################################################################################

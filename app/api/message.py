@@ -1,7 +1,8 @@
 from flask_restful import Resource, reqparse, abort
 
+from app.schema.message import MessageSchema
 from app.lib.api import get_or_abort
-from app.models.message import Message, MessageSchema
+from app.models.message import Message
 
 message_schema = MessageSchema()
 messages_schema = MessageSchema(many=True)

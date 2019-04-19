@@ -7,16 +7,6 @@ from flask_migrate import Migrate
 from app.config import CONFIG_MAPPING
 from app.models import db
 from app.api import api
-# from app.api.message import Message, MessageList
-
-
-from flask_restful import Resource
-from app.models.message import Message
-
-
-class MessageList(Resource):
-    def get(self):
-        return Message.query.all()
 
 
 ###############################################################################
