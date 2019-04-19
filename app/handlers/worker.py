@@ -37,7 +37,7 @@ def list_messages():
             db.session.add(message)
             db.session.commit()
         except:
-            print(f'Failed to create new Message {msg['id']}')
+            print(f"Failed to create new Message {msg['id']}")
 
     return 'Success'
 

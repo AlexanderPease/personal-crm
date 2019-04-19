@@ -11,7 +11,7 @@ class ModelMixin(object):
     """Generic methods useful for models."""
 
     @classmethod
-    def get_or_create(cls, create=dict(), **kwargs):
+    def get_or_create(cls, create_kwargs=dict(), **kwargs):
         """
         Assumes all kwargs are applicable for both get and create
         Uses create dictionary only when creating a new instance.  
@@ -19,7 +19,7 @@ class ModelMixin(object):
         try:
             return cls.query.filter_by(**kwargs).one()
         except NoResultFound:
-            obj = cls(**create, **kwargs)
+            obj = cls(**create_kwargs, **kwargs)
             db.session.add(obj)
             db.session.commit()
             return obj
