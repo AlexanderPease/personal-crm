@@ -44,7 +44,7 @@ def list_messages():
     return 'Success'
 
 
-@app.route('/get-message')
+@app.route('/get-messages')
 def get_message():
     """Step 2: Get full information for all placeholder Messages."""
     if not current_user.is_authenticated:
@@ -52,10 +52,11 @@ def get_message():
 
     service = GmailService(current_user)
     mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
-    messages = Message.query.filter(mailbox=mailbox).all()
+    messages = Message.query.filter_by(mailbox=mailbox).all()
 
     for msg in messages:
-        raw_msg = service.get_message(msg['id'])
+        print(f'Getting {msg.id}...')
+        raw_msg = service.get_message(msg.message_id)
         msg.raw_resource = raw_msg
         db.session.add(msg)
         db.session.commit()

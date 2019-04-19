@@ -19,7 +19,7 @@ class Message(db.Model, ModelMixin):
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
-    # mailbox = relationship("Mailbox", backref="messages")
+    mailbox = relationship("Mailbox", backref="messages")
 
     # Gmail
     message_id = db.Column(db.String(), unique=True)
@@ -103,7 +103,8 @@ class Message(db.Model, ModelMixin):
             return
 
         # Ensure connection between Message, EmailAddress, and action is unique
-        pre_existing = getattr(self, '_email_addresses_' + action).filter_by(email_address=email_str).all()
+        action_prop = '_email_addresses_' + action.replace('-', '_')
+        pre_existing = getattr(self, action_prop).filter_by(email_address=email_str).all()
         
         # kwargs = dict(email_id=email_address.id, action=action)
         # pre_existing = self.message_email_address(**kwargs)
@@ -123,13 +124,13 @@ class Message(db.Model, ModelMixin):
 # Email Address
 ################################################################################
 class EmailAddress(db.Model, ModelMixin):
-    """A single email address."""
+    """A single email address.
+    
+    Relationships to Message: _messages, _messages_from, _messages_to, etc.
+    """
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
-
-    # Relationships to Message:
-    # _messages, _messages_from, _messages_to, etc.
 
     # Contact - not yet in use
     # contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))

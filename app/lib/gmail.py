@@ -21,6 +21,7 @@ class GmailService(object):
         except:
             print('Failed to retrieve email address for user {}'.format(self.user.id))
 
+    # TODO: batch requests: https://developers.google.com/api-client-library/python/guide/batch
     def get_message(self, msg_id):
         """Get a Message with given ID.
 

@@ -4,16 +4,17 @@ from app.models import db
 MAILBOX_GMAIL = 'gmail.com'
 
 class Mailbox(db.Model):
+    """A single mailbox, ex. joe@gmail.com.
+    A User can have multiple mailboxes.
+
+    Relationship to Message: mailbox.messages
+    """
     id = db.Column(db.Integer, primary_key=True)
 
     # TODO: move User.google_credentials to the Mailbox level...
     
     local_part = domain = db.Column(db.String(), nullable=False)
     domain = db.Column(db.String(), nullable=False)
-
-    # Mailbox has many messages
-    # messages = db.relationship(
-    #     "Message", back_populates="mailbox")
 
     # TODO this was not populated correctly in /auth
     # A CRM User can have multiple mailboxes
