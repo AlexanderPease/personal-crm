@@ -9,7 +9,7 @@ from app.lib.gmail import GmailService
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
-from app.models.message import Message, EmailAddress
+from app.models.message import Message, EmailAddress, HEADER_ACTIONS
 
 
 mod = Blueprint('public', __name__)
@@ -98,4 +98,6 @@ def messages():
 def email_addresses():
     return render_template(
         'public/email_addresses.html',
-        email_addresses=EmailAddress.query.limit(100).all())
+        email_addresses=EmailAddress.query.limit(100).all(),
+        header_actions=HEADER_ACTIONS
+    )

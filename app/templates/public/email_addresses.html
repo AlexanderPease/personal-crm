@@ -12,11 +12,14 @@
   <tr>
     <td>{{ email.email_address }}</td>
     <td>{{ email.messages() | length }}</td>
-    <td>{{ email.messages('from') | length }}, {{ email.latest_message('from').datetime }}</td>
-    <td>{{ email.messages('to') | length }}</td>
-    <td>{{ email.messages('cc') | length }}</td>
-    <td>{{ email.messages('bcc') | length }}</td>
-    <td>{{ email.messages('delivered-to') | length }}</td>
+    {% for action in header_actions %}
+    <td>
+      {{ email.messages(action) | length }}
+      {% if email.latest_message(action) %}
+      ({{ email.latest_message(action).datetime|date }})
+      {% endif %}
+    </td>
+    {% endfor %}
   </tr>
   {% endfor %}
 </table>

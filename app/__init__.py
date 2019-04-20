@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from app.config import CONFIG_MAPPING
 from app.models import db
 from app.api import api
+from app.lib.filters import filters
 
 
 ###############################################################################
@@ -48,6 +49,9 @@ def register_blueprints(app):
 
     from app.handlers.worker import mod as worker_module
     app.register_blueprint(worker_module)
+
+    # Jinja2 filters
+    app.register_blueprint(filters)
 
 
 def register_extensions(app):
