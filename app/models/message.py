@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
@@ -16,7 +17,7 @@ HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 class Message(db.Model, ModelMixin):
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
-    updated = db.Column(db.Datetime(), default=datetime.utcnow)
+    updated = db.Column(db.DateTime(), default=datetime.utcnow)
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
@@ -28,7 +29,7 @@ class Message(db.Model, ModelMixin):
     # Raw Gmail.Resource dict, includes everything about message
     raw_resource = db.Column(db.JSON())
 
-    datetime = db.Column(db.String(), nullable=True)
+    datetime = db.Column(db.DateTime(), nullable=True)
 
     # Is there a way to dynamically create these?
     _email_addresses = relationship(
@@ -135,8 +136,8 @@ class EmailAddress(db.Model, ModelMixin):
     name = db.Column(db.String())
 
     # Contact - import Contact somewhere in app to use
-    # contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    # contact = relationship("Contact", backref="email_addresses")
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
+    contact = relationship("Contact", backref="email_addresses")
 
     def __init__(self, email_address, name=None):
         super().__init__()
