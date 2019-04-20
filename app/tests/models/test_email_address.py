@@ -10,6 +10,20 @@ from app.tests.models import TestModelBase
 class TestEmailAddress(TestModelBase):
     model = EmailAddress
 
+    def test_instantiate(self):
+        """Tests instantiation, including malformed attempts."""
+        ea = EmailAddress('test@test.com')
+        assert_equals('test@test.com', ea.email_address)
+
+        for ea_bad in ['foo.com', 'foo@com', '@foo.com', 'foo', '']:
+            try:
+                ea = EmailAddress(ea_bad)
+            except ValueError:
+                pass
+            else:
+                raise Exception(
+                    f'Instantiated malformed email address: {ea_bad}')
+
     def test_add(self):
         with self.app.application.app_context():
             # Add first
@@ -27,7 +41,7 @@ class TestEmailAddress(TestModelBase):
 
     def test_add_multiple(self):
         with self.app.application.app_context():
-            for i in range(1, self.iterations):
+            for i in range(0, self.iterations):
                 self.add(email_address=f'test{i}@test.com')
             assert_equals(
                 len(EmailAddress.query.all()), self.iterations

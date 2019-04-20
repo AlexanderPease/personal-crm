@@ -1,4 +1,5 @@
 from datetime import datetime
+from email.utils import parseaddr
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
@@ -142,8 +143,10 @@ class EmailAddress(db.Model, ModelMixin):
     def __init__(self, email_address, name=None):
         super().__init__()
 
-        # todo: validate email_address format
-        self.email_address = email_address.lower()
+        ea = parseaddr(email_address)[1]
+        if not ea or ea == '' or '@' not in ea or '.' not in ea or not ea.split('@')[0]:
+            raise ValueError
+        self.email_address = ea.lower()
         self.name = name
 
     def __repr__(self):
