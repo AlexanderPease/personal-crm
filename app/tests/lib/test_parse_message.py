@@ -1,3 +1,4 @@
+from datetime import datetime
 from nose.tools import assert_equals
 
 from app import app
@@ -47,10 +48,13 @@ class TestParseMessages(TestBase):
                 EmailAddress.query.filter_by(email_address='delivered-to@test.com').all()
             )
 
-      def test_parse_datetime(self):
+    def test_parse_datetime(self):
         with self.app.application.app_context():
-          msg = self.__create_message()
-          msg = parse_datetime(msg)
+            msg = self.__create_message()
+            msg = parse_datetime(msg)
+            assert_equals(
+                msg.datetime, datetime(2019, 4, 10, 6, 20, 12)
+            )
 
 
     def __create_message(self):
