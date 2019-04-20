@@ -95,7 +95,7 @@ def messages():
 
 
 @app.route('/email-address')
-def email_addresss():
+def email_addresses():
     return render_template(
         'public/email_addresses.html',
-        email_addresses=EmailAddress.query.all())
+        email_addresses=EmailAddress.query.limit(100).all())

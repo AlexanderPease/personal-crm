@@ -29,6 +29,9 @@ class TestEmailAddress(TestModelBase):
         with self.app.application.app_context():
             for i in range(1, self.iterations):
                 self.add(email_address=f'test{i}@test.com')
+            assert_equals(
+                len(EmailAddress.query.all()), self.iterations
+            )
 
     def test_add_idempotent(self):
         with self.app.application.app_context():
@@ -49,3 +52,7 @@ class TestEmailAddress(TestModelBase):
                 raise  # Should not be able to add to db
             except:
                 pass
+
+    def test_messages(self):
+        with self.app.application.app_context():
+            self.add(email_address='test@test.c')

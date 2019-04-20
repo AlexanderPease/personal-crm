@@ -29,6 +29,15 @@ class TestParseMessages(TestBase):
             )
 
             # Ensure header connections exist
+            self._test_parse_actions_assertions(msg)
+
+
+            # Check idempotency!!!
+            msg = parse_message(msg)
+            self._test_parse_actions_assertions(msg)
+
+
+    def _test_parse_actions_assertions(self, msg):
             assert_equals(
                 len(msg.email_addresses()), 6
             )
@@ -47,6 +56,7 @@ class TestParseMessages(TestBase):
                 msg.email_addresses('delivered-to'),
                 EmailAddress.query.filter_by(email_address='delivered-to@test.com').all()
             )
+
 
     def test_parse_datetime(self):
         with self.app.application.app_context():

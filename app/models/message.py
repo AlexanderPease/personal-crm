@@ -27,8 +27,7 @@ class Message(db.Model, ModelMixin):
     message_id = db.Column(db.String(), unique=True)
     thread_id = db.Column(db.String())
     subject = db.Column(db.String())
-    # Raw Gmail.Resource dict, includes everything about message
-    raw_resource = db.Column(db.JSON())
+    raw_resource = db.Column(db.JSON()) # Entire Gmail.Resource dict
 
     datetime = db.Column(db.DateTime(), nullable=True)
 
@@ -152,6 +151,20 @@ class EmailAddress(db.Model, ModelMixin):
 
     def messages(self, action=None, **kwargs):
         """All Messages objects of header action."""
+        try: 
+            return self._messages_query.all()
+        except:
+            return []
+
+    def latest_message(self, action=None, **kwargs):
+        """Returns the most recent message for this email address."""
+        try:
+            return self._messages_query(action, 'datetime', **kwargs).one()
+        except:
+            return
+
+    def _messages_query(self, action=None, order_by=None, **kwargs):
+        """Returns Message query (not objects)."""
         if action and action not in HEADER_ACTIONS:
             return
         elif action:
@@ -159,7 +172,11 @@ class EmailAddress(db.Model, ModelMixin):
         else:
             messages = self._messages
 
-        return messages.filter_by(**kwargs).all()
+        messages = messages.filter_by(**kwargs)
+        if order_by:
+            messages = messages.order_by(order_by)
+        return messages
+
 
 
 ################################################################################
