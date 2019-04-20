@@ -56,6 +56,14 @@ class TestParseMessages(TestBase):
                 msg.datetime, datetime(2019, 4, 10, 6, 20, 12)
             )
 
+    def test_parse_subject(self):
+        with self.app.application.app_context():
+            msg = self.__create_message()
+            msg = parse_subject(msg)
+            assert_equals(
+                msg.subject, 'Sample Subject'
+            )
+
 
     def __create_message(self):
         msg = Message(

@@ -26,6 +26,7 @@ class Message(db.Model, ModelMixin):
     # Gmail
     message_id = db.Column(db.String(), unique=True)
     thread_id = db.Column(db.String())
+    subject = db.Column(db.String())
     # Raw Gmail.Resource dict, includes everything about message
     raw_resource = db.Column(db.JSON())
 

@@ -14,7 +14,6 @@ def parse_message(message):
 def parse_actions(message):
     """Parses Message.raw_resource to populate
     Message, EmailAddress, and MessageEmailAddress tables."""
-
     for header_raw in message.raw_resource['payload']['headers']:
         action = header_raw['name'].lower()
         value = header_raw['value']
@@ -54,4 +53,12 @@ def parse_datetime(message):
 
 def parse_subject(message):
     """Parses Message.raw_headers subject line."""
-    pass
+    for header_raw in message.raw_resource['payload']['headers']:
+        if header_raw['name'] != "Subject":
+            continue
+
+        message.subject = header_raw.get('value')
+
+        db.session.add(message)
+        db.session.commit()
+    return message
