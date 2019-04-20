@@ -2,7 +2,7 @@ from datetime import datetime
 from nose.tools import assert_equals
 
 from app import app
-from app.lib.parse_message import parse_actions, parse_datetime, parse_subject
+from app.lib.parse_message import parse_message
 from app.models import db
 from app.models.message import Message, EmailAddress
 from app.tests import TestBase
@@ -15,7 +15,7 @@ class TestParseMessages(TestBase):
         """Tests parsing email address headers."""
         with self.app.application.app_context():
             msg = self.__create_message()
-            msg = parse_actions(msg)
+            msg = parse_message(msg)
 
             # Ensure email addresses were created
             assert_equals(
@@ -51,7 +51,7 @@ class TestParseMessages(TestBase):
     def test_parse_datetime(self):
         with self.app.application.app_context():
             msg = self.__create_message()
-            msg = parse_datetime(msg)
+            msg = parse_message(msg)
             assert_equals(
                 msg.datetime, datetime(2019, 4, 10, 6, 20, 12)
             )
@@ -59,7 +59,7 @@ class TestParseMessages(TestBase):
     def test_parse_subject(self):
         with self.app.application.app_context():
             msg = self.__create_message()
-            msg = parse_subject(msg)
+            msg = parse_message(msg)
             assert_equals(
                 msg.subject, 'Sample Subject'
             )
