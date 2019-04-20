@@ -1,7 +1,7 @@
 from nose.tools import assert_equals
 
 from app import app
-from app.lib.parse_message import parse_message
+from app.lib.parse_message import parse_actions, parse_datetime, parse_subject
 from app.models import db
 from app.models.message import Message, EmailAddress
 from app.tests import TestBase
@@ -10,17 +10,11 @@ from app.tests import TestBase
 class TestParseMessages(TestBase):
     """Tests app/lib/parse_message.py functions."""
 
-    def test_parse_headers(self):
+    def test_parse_actions(self):
+        """Tests parsing email address headers."""
         with self.app.application.app_context():
-            msg = Message(
-                message_id='12345',
-                thread_id='67890',
-                raw_resource=RAW_RESOURCE
-            )
-            db.session.add(msg)
-            db.session.commit()
-
-            msg = parse_message(msg)
+            msg = self.__create_message()
+            msg = parse_actions(msg)
 
             # Ensure email addresses were created
             assert_equals(
@@ -52,6 +46,22 @@ class TestParseMessages(TestBase):
                 msg.email_addresses('delivered-to'),
                 EmailAddress.query.filter_by(email_address='delivered-to@test.com').all()
             )
+
+      def test_parse_datetime(self):
+        with self.app.application.app_context():
+          msg = self.__create_message()
+          msg = parse_datetime(msg)
+
+
+    def __create_message(self):
+        msg = Message(
+            message_id='12345',
+            thread_id='67890',
+            raw_resource=RAW_RESOURCE
+        )
+        db.session.add(msg)
+        db.session.commit()
+        return msg
 
 
 RAW_RESOURCE = {

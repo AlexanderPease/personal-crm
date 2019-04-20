@@ -4,11 +4,15 @@ from app.models import db
 from app.models.message import Message, EmailAddress, HEADER_ACTIONS
 
 def parse_message(message):
-    """Parses Message.raw_headers to populate
+    parse_actions(message)
+    parse_datetime(message)
+    parse_subject(message)
+
+
+def parse_actions(message):
+    """Parses Message.raw_resource to populate
     Message, EmailAddress, and MessageEmailAddress tables."""
     for header_raw in message.raw_resource['payload']['headers']:
-        # print('{}: {}'.format(header['name'], header['value']))
-        # print('---------')
         action = header_raw['name'].lower()
         value = header_raw['value']
 
@@ -24,8 +28,14 @@ def parse_message(message):
                     email_str=email_str.lower(),
                     action=action,
                     name=name_str)
-        elif action == 'date':
-            pass
-        elif action == 'subject':
-            pass
     return message
+
+
+def parse_datetime(message):
+    """Parses Message.raw_headers datetime."""
+    pass
+
+
+def parse_subject(message):
+    """Parses Message.raw_headers subject line."""
+    pass

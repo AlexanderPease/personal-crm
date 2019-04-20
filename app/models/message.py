@@ -16,6 +16,7 @@ HEADER_ACTIONS = ['from', 'to', 'cc', 'bcc', 'delivered-to']
 class Message(db.Model, ModelMixin):
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
+    updated = db.Column(db.Datetime(), default=datetime.utcnow)
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
@@ -26,6 +27,8 @@ class Message(db.Model, ModelMixin):
     thread_id = db.Column(db.String())
     # Raw Gmail.Resource dict, includes everything about message
     raw_resource = db.Column(db.JSON())
+
+    datetime = db.Column(db.String(), nullable=True)
 
     # Is there a way to dynamically create these?
     _email_addresses = relationship(
@@ -131,16 +134,16 @@ class EmailAddress(db.Model, ModelMixin):
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
-    # Contact - not yet in use
+    # Contact - import Contact somewhere in app to use
     # contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    # contact = relationship("Contact", back_populates="email_addresses")
+    # contact = relationship("Contact", backref="email_addresses")
 
-    def __init__(self, **kwargs):
+    def __init__(self, email_address, name=None):
         super().__init__()
 
-        self.name = kwargs.get('name')
-        if 'email_address' in kwargs.keys():
-            self.email_address = kwargs['email_address'].lower()
+        # todo: validate email_address format
+        self.email_address = email_address.lower()
+        self.name = name
 
     def __repr__(self):
         return f'<EmailAddress: {self.email_address}>'

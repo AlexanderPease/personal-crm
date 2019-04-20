@@ -63,7 +63,7 @@ def get_message():
 
 
 @app.route('/parse-messages')
-def parse_headers():
+def parse_messages():
     """Step 3: Parse Message headers."""
     messages = Message.query.filter_by(_email_addresses=None).all()
     for msg in messages:
