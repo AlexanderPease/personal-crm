@@ -5,6 +5,7 @@ from app.models.message import Message, EmailAddress, HEADER_ACTIONS
 
 from app.models.contact import Contact
 
+# todo: refactor to only iterate over headers once
 def parse_message(message):
     parse_actions(message)
     parse_datetime(message)
