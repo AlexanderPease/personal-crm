@@ -1,9 +1,9 @@
 from datetime import datetime
-from email.utils import parseaddr
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
 from app.models import db, ModelMixin
+from app.lib.email_address import valid_email
 
 
 # Executing basic SQL works, returns Message classes
@@ -19,6 +19,7 @@ class Message(db.Model, ModelMixin):
     """A single message."""
     id = db.Column(db.Integer, primary_key=True)
     updated = db.Column(db.DateTime(), default=datetime.utcnow)
+    datetime = db.Column(db.DateTime(), nullable=True)
 
     # Many Messages for a single Mailbox
     mailbox_id = db.Column(db.Integer, db.ForeignKey('mailbox.id'))
@@ -29,8 +30,6 @@ class Message(db.Model, ModelMixin):
     thread_id = db.Column(db.String())
     subject = db.Column(db.String())
     raw_resource = db.Column(db.JSON()) # Entire Gmail.Resource dict
-
-    datetime = db.Column(db.DateTime(), nullable=True)
 
     # Is there a way to dynamically create these?
     _email_addresses = relationship(
@@ -133,18 +132,20 @@ class EmailAddress(db.Model, ModelMixin):
     Relationships to Message: _messages, _messages_from, _messages_to, etc.
     """
     id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.Integer) # see EMAIL_STATUS_%
+
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
     # Contact - import Contact somewhere in app to use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    contact = relationship("Contact", backref="email_addresses")
+    # contact = relationship("Contact", backref="email_addresses")
 
     def __init__(self, email_address, name=None):
         super().__init__()
 
-        ea = parseaddr(email_address)[1]
-        if not ea or ea == '' or '@' not in ea or '.' not in ea or not ea.split('@')[0]:
+        ea = valid_email(email_address)
+        if not ea:
             raise ValueError
         self.email_address = ea.lower()
         self.name = name
@@ -179,7 +180,6 @@ class EmailAddress(db.Model, ModelMixin):
         if order_by:
             messages = messages.order_by(order_by)
         return messages
-
 
 
 ################################################################################

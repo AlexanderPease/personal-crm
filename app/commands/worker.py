@@ -2,10 +2,12 @@ import click
 from flask import current_app as app
 
 from app.lib.gmail import GmailService
+from app.lib.parse_message import parse_message
+from app.lib.constants import BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
-from app.models.message import Message
+from app.models.message import Message, EmailAddress
 
 
 @app.cli.command('list-messages')
@@ -68,9 +70,27 @@ def get_messages(dry_run):
 @app.cli.command('parse-messages')
 def parse_messages():
     """Step 3: Parse Message headers."""
-    messages = Message.query.filter_by(_email_addresses=None).all()
+    messages = Message.query.filter_by(datetime=None).all()
+    print('Retrieved messages...')
+
     for msg in messages:
         print(f'Parsing {msg.id}...')
         parse_message(msg)
+
+    print('Success')
+
+
+@app.cli.command('blacklist-emails')
+@click.option('--dry-run', is_flag=True, default=False)
+def blacklist_emails(dry_run):
+    """Step 4: Ignore certain emails."""
+    for substring in BLACKLIST_EMAIL_SUBSTRINGS:
+        ea = db.session.query(EmailAddress).filter(EmailAddress.email_address.like(substring)).update().values(status=EMAIL_STATUS_IGNORE)
+        print(f'Retrieved email addresses for {substring}...')
+
+        if dry_run:
+            print(ea.all())
+        else:
+            pass
 
     print('Success')
