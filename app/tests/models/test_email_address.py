@@ -2,6 +2,7 @@ from nose.tools import assert_equals
 from sqlalchemy.exc import IntegrityError
 
 from app import app
+from app.lib.constants import EMAIL_STATUS_NORMAL
 from app.models import db
 from app.models.message import EmailAddress
 from app.tests.models import TestModelBase
@@ -32,6 +33,7 @@ class TestEmailAddress(TestModelBase):
             ea = EmailAddress(email_address=email_str, name=name_str)
             assert_equals(ea.email_address, email_str)
             assert_equals(ea.name, name_str)
+            assert_equals(ea.status, EMAIL_STATUS_NORMAL)
             
             db.session.add(ea)
             db.session.commit()

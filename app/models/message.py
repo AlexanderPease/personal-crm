@@ -3,6 +3,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
 from app.models import db, ModelMixin
+from app.lib.constants import EMAIL_STATUS_NORMAL
 from app.lib.email_address import valid_email
 
 
@@ -149,6 +150,7 @@ class EmailAddress(db.Model, ModelMixin):
             raise ValueError
         self.email_address = ea.lower()
         self.name = name
+        self.status = EMAIL_STATUS_NORMAL  # default not working
 
     def __repr__(self):
         return f'<EmailAddress: {self.email_address}>'

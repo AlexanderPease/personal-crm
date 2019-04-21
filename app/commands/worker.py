@@ -85,12 +85,13 @@ def parse_messages():
 def blacklist_emails(dry_run):
     """Step 4: Ignore certain emails."""
     for substring in BLACKLIST_EMAIL_SUBSTRINGS:
-        ea = db.session.query(EmailAddress).filter(EmailAddress.email_address.like(substring)).update().values(status=EMAIL_STATUS_IGNORE)
+        ea = db.session.query(EmailAddress).filter(EmailAddress.email_address.ilike(substring))
         print(f'Retrieved email addresses for {substring}...')
 
         if dry_run:
             print(ea.all())
         else:
-            pass
+            ea.update(values={EmailAddress.status: EMAIL_STATUS_IGNORE}, synchronize_session=False)
+            db.session.commit()
 
     print('Success')
