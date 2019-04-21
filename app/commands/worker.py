@@ -1,22 +1,17 @@
+import click
 from flask import current_app as app
-from flask import Blueprint, render_template, redirect, url_for
-from flask_login import current_user
 
 from app.lib.gmail import GmailService
-from app.lib.parse_message import parse_message
 from app.models import db
+from app.models.user import User
 from app.models.mailbox import Mailbox
 from app.models.message import Message
 
 
-mod = Blueprint('worker', __name__)
-
-
-@app.route('/list-messages')
+@app.cli.command('list-messages')
 def list_messages():
     """Step 1: Get all message_ids and create placeholder Messages."""
-    if not current_user.is_authenticated:
-        return redirect(url_for('index'))
+    current_user = User.query.filter_by(email='me@alexanderpease.com').one()
 
     service = GmailService(current_user)
     mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
@@ -41,28 +36,36 @@ def list_messages():
         except:
             print(f"Failed to create new Message {msg['id']}")
 
-    return 'Success'
+    print('Success')
 
 
-@app.route('/get-messages')
-def get_message():
+@app.cli.command('get-messages')
+@click.option('--dry-run', is_flag=True, default=False)
+def get_messages(dry_run):
     """Step 2: Get full information for all placeholder Messages."""
-    if not current_user.is_authenticated:
-        return redirect(url_for('index'))
+    user = User.query.filter_by(email='me@alexanderpease.com').one()
 
-    service = GmailService(current_user)
-    mailbox = Mailbox.query.filter_by(user_id=current_user.id).first()
-    messages = Message.query.filter_by(mailbox=mailbox).all()
+    service = GmailService(user)
+    mailbox = Mailbox.query.filter_by(user_id=user.id).first()
+    messages = Message.query.filter_by(
+        raw_resource=None,
+        mailbox=mailbox
+    ).all()
+    print('Retrieved messages...')
 
-    for msg in messages:
+    for i, msg in enumerate(messages):
         print(f'Getting {msg.id}...')
         raw_msg = service.get_message(msg.message_id)
         msg.raw_resource = raw_msg
         db.session.add(msg)
-        db.session.commit()
+        if i % 100 == 0 and not dry_run:
+            db.session.commit()
+            print('Committed to db...')
+
+    print('Success')
 
 
-@app.route('/parse-messages')
+@app.cli.command('parse-messages')
 def parse_messages():
     """Step 3: Parse Message headers."""
     messages = Message.query.filter_by(_email_addresses=None).all()
@@ -70,4 +73,4 @@ def parse_messages():
         print(f'Parsing {msg.id}...')
         parse_message(msg)
 
-    return 'Success'
+    print('Success')

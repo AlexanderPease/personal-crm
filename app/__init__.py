@@ -47,9 +47,6 @@ def register_blueprints(app):
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
 
-    from app.handlers.worker import mod as worker_module
-    app.register_blueprint(worker_module)
-
     # Jinja2 filters
     app.register_blueprint(filters)
 
@@ -72,6 +69,12 @@ def register_extensions(app):
             return None
 
 
+def register_commands(app):
+    """Register cli commands with app context"""
+    with app.app_context():
+        from app.commands import worker  # NOQA
+
+
 ###############################################################################
 # Main app setup
 ###############################################################################
@@ -85,6 +88,7 @@ def create_app():
         register_db(app)
         register_blueprints(app)
         register_extensions(app)
+        register_commands(app)
 
     return app
 

@@ -154,17 +154,17 @@ class EmailAddress(db.Model, ModelMixin):
 
     def messages(self, action=None, **kwargs):
         """All Messages objects of header action."""
-        # try: 
-        return self._messages_query(action, **kwargs).all()
-        # except:
-        #     return []
+        try: 
+            return self._messages_query(action, **kwargs).all()
+        except:
+            return []
 
     def latest_message(self, action=None, **kwargs):
         """Returns the most recent message for this email address."""
-        # try:
-        return self._messages_query(action, 'datetime', **kwargs).first()
-        # except:
-        #     return
+        try:
+            return self._messages_query(action, 'datetime', **kwargs).first()
+        except:
+            return
 
     def _messages_query(self, action=None, order_by=None, **kwargs):
         """Returns Message query (not objects)."""
