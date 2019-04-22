@@ -92,14 +92,14 @@ def logout():
 @app.route('/message')
 def messages():
     return render_template(
-        'public/messages.html', messages=Message.query.all())
+        'public/messages.html', messages=Message.query.limit(500).all())
 
 
 @app.route('/email-address')
 def email_addresses():
     return render_template(
         'public/email_addresses.html',
-        email_addresses=EmailAddress.query.limit(100).all(),
+        email_addresses=EmailAddress.query.limit(500).all(),
         header_actions=HEADER_ACTIONS
     )
 

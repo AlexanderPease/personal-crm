@@ -14,3 +14,15 @@ def empty(string):
     if not string or string == 'None':
         return ''
     return string
+
+
+@filters.app_template_filter('list_to_string')
+def list_to_string(_list,  attr=None, func=str, delimit=', '):
+    value = ''
+    for obj in _list:
+        if attr:
+            value += getattr(obj, attr)
+        else:
+            value += func(obj)
+        value += delimit
+    return value[:-len(delimit)]
