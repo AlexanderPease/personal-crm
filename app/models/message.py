@@ -140,7 +140,7 @@ class EmailAddress(db.Model, ModelMixin):
 
     # Contact - import Contact somewhere in app to use
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
-    # contact = relationship("Contact", backref="email_addresses")
+    contact = relationship("Contact", backref="email_addresses")
 
     def __init__(self, email_address, name=None):
         super().__init__()

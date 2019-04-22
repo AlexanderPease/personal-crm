@@ -3,7 +3,9 @@ from flask import current_app as app
 
 from app.lib.gmail import GmailService
 from app.lib.parse_message import parse_message
-from app.lib.constants import BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE
+from app.lib.constants import (
+    BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE, EMAIL_STATUS_NORMAL
+)
 from app.models import db
 from app.models.user import User
 from app.models.mailbox import Mailbox
@@ -93,5 +95,22 @@ def blacklist_emails(dry_run):
         else:
             ea.update(values={EmailAddress.status: EMAIL_STATUS_IGNORE}, synchronize_session=False)
             db.session.commit()
+
+    print('Success')
+
+
+
+@app.cli.command('generate-contacts')
+@click.option('--dry-run', is_flag=True, default=False)
+def generate_contacts(dry_run):
+    """Step 5: Generate Contacts for each EmailAddress."""
+    emails = EmailAddress.query.filter_by(status=EMAIL_STATUS_NORMAL, contact=None).all()
+    print(f'Retrieved email addresses for w/out contacts..')
+    
+    for ea in emails:
+        if dry_run:
+            print(ea)
+        else:
+            pass
 
     print('Success')

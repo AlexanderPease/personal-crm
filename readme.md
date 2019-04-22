@@ -1,5 +1,4 @@
 To-Do:
-- Ignore certain domains
 - Combine email addresses into a single Contact, only email primary address?
 - Tag a person, i.e. email address or Contact
 - Sort by tags vs latest datetime

@@ -6,4 +6,8 @@ EMAIL_STATUS_IGNORE = 1
 BLACKLIST_EMAIL_SUBSTRINGS = [
     '%no-reply%',
     '%noreply%',
+    '%newsletter%',
+    'info%',
+    'support%',
+    'notification%',
 ]
