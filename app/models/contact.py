@@ -5,6 +5,10 @@ class Contact(db.Model, ModelMixin):
     """A single contact (i.e. a person) may have multiple email addresses.
 
     Relationship to EmailAddress: email_addresses
+        A single Contact can have multiple email addresses.
+
+    Relationship to Tags: tags
+        Many-to-many relationship.
     """
     id = db.Column(db.Integer, primary_key=True)
 

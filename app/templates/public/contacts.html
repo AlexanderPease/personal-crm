@@ -11,7 +11,7 @@
   {% for contact in contacts %}
   <tr>
     <td>{{ contact }}</td>
-    <td>{{ contact.email_addresses }}</td>
+    <td>{{ contact.email_addresses|list_to_string('email_address') }}</td>
     {% for action in header_actions %}
     <td>
       {{ contact.email_addresses[0].messages(action) | length }}
