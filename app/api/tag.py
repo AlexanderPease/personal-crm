@@ -9,16 +9,23 @@ tags_schema = TagSchema(many=True)
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('id')
 
 
-class MessageAPI(Resource):
+class TagAPI(Resource):
     def get(self, obj_id):
         tag = get_or_abort(Tag, obj_id)
         return tag_schema.dump(tag).data
 
 
-class MessageListAPI(Resource):
+class TagListAPI(Resource):
     def get(self):
         tags = Tag.query.all()
         return tags_schema.dump(tags).data
+
+    def post(self):
+        parser.add_argument('name', required=True)
+        args = parser.parse_args()
+        name = args.get('name')
+        
+        tag = Tag.get_or_create(name=name)
+        return tag_schema.dump(tag).data

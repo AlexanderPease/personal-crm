@@ -1,4 +1,5 @@
 from app.models import db, ModelMixin
+from sqlalchemy.orm import relationship
 
 
 tag_contact = db.Table(

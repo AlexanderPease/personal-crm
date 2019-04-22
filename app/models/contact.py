@@ -19,3 +19,10 @@ class Contact(db.Model, ModelMixin):
         if self.name:
             return self.name
         return f'<Contact: {self.id}>'
+
+    def add_tag(self, tag):
+        """Adds a Tag, unique relationship to Tag."""
+        if tag in self.tags:
+            return
+        self.tags.append(tag)
+        return self

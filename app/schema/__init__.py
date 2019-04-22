@@ -5,8 +5,7 @@ MESSAGE_SIMPLE_SCHEMA = dict(
 )
 
 
-EMAIL_SIMPLE_SCHEMA_ONLY = only=('id', 'name', 'email_address')
-
+EMAIL_SIMPLE_SCHEMA_ONLY = ('id', 'name', 'email_address')
 
 EMAIL_SIMPLE_SCHEMA = dict(
     only=EMAIL_SIMPLE_SCHEMA_ONLY,
