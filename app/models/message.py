@@ -138,7 +138,7 @@ class EmailAddress(db.Model, ModelMixin):
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())
 
-    # Contact - import Contact somewhere in app to use
+    # Contact
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'))
     contact = relationship("Contact", backref="email_addresses")
 

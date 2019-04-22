@@ -7,9 +7,10 @@ from app.lib.constants import (
     BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE, EMAIL_STATUS_NORMAL
 )
 from app.models import db
-from app.models.user import User
+from app.models.contact import Contact
 from app.models.mailbox import Mailbox
 from app.models.message import Message, EmailAddress
+from app.models.user import User
 
 
 @app.cli.command('list-messages')
@@ -105,12 +106,15 @@ def blacklist_emails(dry_run):
 def generate_contacts(dry_run):
     """Step 5: Generate Contacts for each EmailAddress."""
     emails = EmailAddress.query.filter_by(status=EMAIL_STATUS_NORMAL, contact=None).all()
-    print(f'Retrieved email addresses for w/out contacts..')
+    print(f'Retrieved email addresses w/out contacts..')
     
     for ea in emails:
         if dry_run:
             print(ea)
         else:
-            pass
+            contact = Contact(name=ea.name)
+            ea.contact = contact
+            db.session.add(ea)
+            db.session.commit()
 
     print('Success')
