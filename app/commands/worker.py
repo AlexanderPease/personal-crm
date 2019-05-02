@@ -100,14 +100,13 @@ def blacklist_emails(dry_run):
     print('Success')
 
 
-
 @app.cli.command('generate-contacts')
 @click.option('--dry-run', is_flag=True, default=False)
 def generate_contacts(dry_run):
     """Step 5: Generate Contacts for each EmailAddress."""
     emails = EmailAddress.query.filter_by(status=EMAIL_STATUS_NORMAL, contact=None).all()
     print(f'Retrieved email addresses w/out contacts..')
-    
+
     for ea in emails:
         if dry_run:
             print(ea)

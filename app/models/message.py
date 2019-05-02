@@ -110,7 +110,7 @@ class Message(db.Model, ModelMixin):
         # Ensure connection between Message, EmailAddress, and action is unique
         action_prop = '_email_addresses_' + action.replace('-', '_')
         pre_existing = getattr(self, action_prop).filter_by(email_address=email_str).all()
-        
+
         if pre_existing and len(pre_existing):
             return
 
@@ -129,7 +129,7 @@ class Message(db.Model, ModelMixin):
 ################################################################################
 class EmailAddress(db.Model, ModelMixin):
     """A single email address.
-    
+
     Relationships to Message: _messages, _messages_from, _messages_to, etc.
     """
     id = db.Column(db.Integer, primary_key=True)
