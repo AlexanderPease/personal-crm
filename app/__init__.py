@@ -73,6 +73,7 @@ def register_commands(app):
     """Register cli commands with app context"""
     with app.app_context():
         from app.commands import worker  # NOQA
+        from app.commands import clean
 
 
 ###############################################################################

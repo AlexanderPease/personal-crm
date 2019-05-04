@@ -1,7 +1,8 @@
 <table>
   <tr>
     <th>ID</th>
-    <th>Snippet</th>
+    <th>Subject</th>
+    <th>Date</th>
     <th>From</th>
     <th>To</th>
     <th>CC</th>
@@ -11,12 +12,13 @@
   {% for msg in messages %}
   <tr>
     <td>{{ msg.id }}</td>
-    <td>{{ msg.raw_resource['snippet'][:40] }}</td>
-    <td>{{ msg.from_email_address }}</td>
-    <td>{{ msg.email_addresses('to') }}</td>
-    <td>{{ msg.email_addresses('cc') }}</td>
-    <td>{{ msg.email_addresses('bcc') }}</td>
-    <td>{{ msg.email_addresses('delivered-to') }}</td>
+    <td>{{ msg.subject }}</td>
+    <td>{{ msg.datetime|date }}</td>
+    <td>{{ msg.from_email_address.email_address }}</td>
+    <td>{{ msg.email_addresses('to')|list_to_string('email_address') }}</td>
+    <td>{{ msg.email_addresses('cc')|list_to_string('email_address') }}</td>
+    <td>{{ msg.email_addresses('bcc')|list_to_string('email_address') }}</td>
+    <td>{{ msg.email_addresses('delivered-to')|list_to_string('email_address') }}</td>
   </tr>
   {% endfor %}
 </table>

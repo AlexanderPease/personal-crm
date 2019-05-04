@@ -1,0 +1,25 @@
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email Addresses</th>
+    <th>From</th>
+    <th>To</th>
+    <th>CC</th>
+    <th>BCC</th>
+    <th>Delivered-To</th>
+  </tr>
+  {% for contact in contacts %}
+  <tr>
+    <td>{{ contact }}</td>
+    <td>{{ contact.email_addresses|list_to_string('email_address') }}</td>
+    {% for action in header_actions %}
+    <td>
+      {{ contact.email_addresses[0].messages(action) | length }}
+      {% if contact.email_addresses[0].latest_message(action) %}
+      ({{ contact.email_addresses[0].latest_message(action).datetime|date }})
+      {% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>

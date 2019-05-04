@@ -3,10 +3,15 @@ import time
 from flask import current_app as app
 
 from app.lib.gmail import GmailService
+from app.lib.parse_message import parse_message
+from app.lib.constants import (
+    BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE, EMAIL_STATUS_NORMAL
+)
 from app.models import db
-from app.models.user import User
+from app.models.contact import Contact
 from app.models.mailbox import Mailbox
-from app.models.message import Message
+from app.models.message import Message, EmailAddress
+from app.models.user import User
 
 
 @app.cli.command('list-messages')
@@ -79,3 +84,39 @@ def parse_messages():
     #     parse_message(msg)
 
     # print('Success')
+
+
+@app.cli.command('blacklist-emails')
+@click.option('--dry-run', is_flag=True, default=False)
+def blacklist_emails(dry_run):
+    """Step 4: Ignore certain emails."""
+    for substring in BLACKLIST_EMAIL_SUBSTRINGS:
+        ea = db.session.query(EmailAddress).filter(EmailAddress.email_address.ilike(substring))
+        print(f'Retrieved email addresses for {substring}...')
+
+        if dry_run:
+            print(ea.all())
+        else:
+            ea.update(values={EmailAddress.status: EMAIL_STATUS_IGNORE}, synchronize_session=False)
+            db.session.commit()
+
+    print('Success')
+
+
+@app.cli.command('generate-contacts')
+@click.option('--dry-run', is_flag=True, default=False)
+def generate_contacts(dry_run):
+    """Step 5: Generate Contacts for each EmailAddress."""
+    emails = EmailAddress.query.filter_by(status=EMAIL_STATUS_NORMAL, contact=None).all()
+    print(f'Retrieved email addresses w/out contacts..')
+
+    for ea in emails:
+        if dry_run:
+            print(ea)
+        else:
+            contact = Contact(name=ea.name)
+            ea.contact = contact
+            db.session.add(ea)
+            db.session.commit()
+
+    print('Success')
