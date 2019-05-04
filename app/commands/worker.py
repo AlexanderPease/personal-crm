@@ -1,4 +1,5 @@
 import click
+import time
 from flask import current_app as app
 
 from app.lib.gmail import GmailService
@@ -33,7 +34,7 @@ def list_messages():
         try:
             db.session.add(message)
             db.session.commit()
-        except:
+        except Exception:
             print(f"Failed to create new Message {msg['id']}")
 
     print('Success')
@@ -68,9 +69,13 @@ def get_messages(dry_run):
 @app.cli.command('parse-messages')
 def parse_messages():
     """Step 3: Parse Message headers."""
+    start = time.time()
     messages = Message.query.filter_by(_email_addresses=None).all()
-    for msg in messages:
-        print(f'Parsing {msg.id}...')
-        parse_message(msg)
+    end = time.time()
+    print(end - start)
 
-    print('Success')
+    # for msg in messages:
+    #     print(f'Parsing {msg.id}...')
+    #     parse_message(msg)
+
+    # print('Success')
