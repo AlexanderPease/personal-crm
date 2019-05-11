@@ -30,12 +30,12 @@ class Message(db.Model, ModelMixin):
     message_id = db.Column(db.String(), unique=True)
     thread_id = db.Column(db.String())
     subject = db.Column(db.String())
-    raw_resource = db.Column(db.JSON()) # Entire Gmail.Resource dict
+    raw_resource = db.Column(db.JSON())  # Entire Gmail.Resource dict
 
     # Is there a way to dynamically create these?
     _email_addresses = relationship(
         "EmailAddress",
-        secondary="message_email_address", lazy='dynamic', backref=backref("_messages", lazy='dynamic'))
+        secondary="message_email_address", backref=backref("_messages"))
     _email_addresses_from = relationship(
         "EmailAddress",
         primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
@@ -109,7 +109,8 @@ class Message(db.Model, ModelMixin):
 
         # Ensure connection between Message, EmailAddress, and action is unique
         action_prop = '_email_addresses_' + action.replace('-', '_')
-        pre_existing = getattr(self, action_prop).filter_by(email_address=email_str).all()
+        pre_existing = getattr(self, action_prop).filter_by(
+            email_address=email_str).all()
 
         if pre_existing and len(pre_existing):
             return
@@ -117,7 +118,10 @@ class Message(db.Model, ModelMixin):
         # Add new connection
         email_address = EmailAddress.get_or_create(
             email_address=email_str, create_kwargs=dict(name=name))
-        a = MessageEmailAddress(message_id=self.id, email_id=email_address.id, action=action)
+        if not email_address:
+            return  # Ignore malformed email addresses
+        a = MessageEmailAddress(
+            message_id=self.id, email_id=email_address.id, action=action)
         db.session.add(a)
         db.session.commit()
 
@@ -157,7 +161,7 @@ class EmailAddress(db.Model, ModelMixin):
 
     def messages(self, action=None, **kwargs):
         """All Messages objects of header action."""
-        try: 
+        try:
             return self._messages_query(action, **kwargs).all()
         except:
             return []

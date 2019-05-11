@@ -1,6 +1,6 @@
 import click
-import time
 from flask import current_app as app
+from sqlalchemy.sql import not_
 
 from app.lib.gmail import GmailService
 from app.lib.parse_message import parse_message
@@ -72,18 +72,25 @@ def get_messages(dry_run):
 
 
 @app.cli.command('parse-messages')
-def parse_messages():
+@click.option('--dry-run', is_flag=True, default=False)
+def parse_messages(dry_run):
     """Step 3: Parse Message headers."""
-    start = time.time()
-    messages = Message.query.filter_by(_email_addresses=None).all()
-    end = time.time()
-    print(end - start)
+    # Messages without associated EmailAddresses
+    has_results = True
+    while has_results:
+        has_results = False
 
-    # for msg in messages:
-    #     print(f'Parsing {msg.id}...')
-    #     parse_message(msg)
+        query = db.session.query(Message).\
+            join(Message.message_email_address, isouter=True).\
+            filter(not_(Message.message_email_address.any()))
 
-    # print('Success')
+        for msg in query.limit(100):
+            print(f'Parsing {msg.id}...')
+            if not dry_run:
+                parse_message(msg)
+            has_results = True
+
+    print('Success')
 
 
 @app.cli.command('blacklist-emails')

@@ -21,7 +21,7 @@ def parse_message(message):
             message.datetime = dt
         elif name == 'subject':
             message.subject = value
-    
+
     db.session.add(message)
     db.session.commit()
     return message
