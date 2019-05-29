@@ -1,0 +1,12 @@
+<table>
+  <tr>
+    <th>Tag</th>
+    <th>Contacts</th>
+  </tr>
+  {% for tag in tags %}
+  <tr>
+    <td>{{ tag.name }}</td>
+    <td>{{ tag.contacts|list_to_string }}</td>
+  </tr>
+  {% endfor %}
+</table>

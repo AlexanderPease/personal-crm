@@ -4,6 +4,7 @@ from app import app
 from app.models.message import EmailAddress
 from app.tests.models import TestModelBase
 
+
 class TestEmailAddressAPI(TestModelBase):
     model = EmailAddress
     endpoint = 'api/email-address'
@@ -16,11 +17,10 @@ class TestEmailAddressAPI(TestModelBase):
         result = self.app.get('api/email-address')
         assert_equals(result.status_code, 200)
 
-
     def test_email_address(self):
         with self.app.application.app_context():
             endpoint = self.endpoint + '/1'
-            
+
             result = self.app.get(endpoint)
             assert_equals(result.status_code, 404)
 

@@ -12,7 +12,7 @@ def clean_emails(dry_run):
     """Removes malformed EmailAddresses created prior to validation."""
     emails = EmailAddress.query.all()
     print(f'Retrieved malformed email addresses...')
-    
+
     for ea in emails:
         if valid_email(ea.email_address):
             continue
@@ -21,8 +21,8 @@ def clean_emails(dry_run):
         else:
             db.session.delete(ea)
             db.session.query(MessageEmailAddress).filter(MessageEmailAddress.email_id==ea.id).delete()
-    
+
     if not dry_run:
         db.session.commit()
-    
+
     print('Success')

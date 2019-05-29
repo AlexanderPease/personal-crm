@@ -34,7 +34,7 @@ class TestEmailAddress(TestModelBase):
             assert_equals(ea.email_address, email_str)
             assert_equals(ea.name, name_str)
             assert_equals(ea.status, EMAIL_STATUS_NORMAL)
-            
+
             db.session.add(ea)
             db.session.commit()
             assert_equals(

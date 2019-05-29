@@ -1,7 +1,5 @@
 from nose.tools import assert_equals
 
-from app import app
-from app.models import db
 from app.models.message import Message
 from app.tests.models import TestModelBase
 

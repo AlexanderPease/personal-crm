@@ -10,6 +10,7 @@ from app.models import db
 from app.models.contact import Contact
 from app.models.mailbox import Mailbox
 from app.models.message import Message, EmailAddress, HEADER_ACTIONS
+from app.models.tag import Tag
 from app.models.user import User
 
 
@@ -89,17 +90,20 @@ def logout():
     session.clear()
 
 
+QUERY_LIMIT = 100
+
+
 @app.route('/message')
 def messages():
     return render_template(
-        'public/messages.html', messages=Message.query.limit(500).all())
+        'public/messages.html', messages=Message.query.limit(QUERY_LIMIT).all())
 
 
 @app.route('/email-address')
 def email_addresses():
     return render_template(
         'public/email_addresses.html',
-        email_addresses=EmailAddress.query.limit(500).all(),
+        email_addresses=EmailAddress.query.limit(QUERY_LIMIT).all(),
         header_actions=HEADER_ACTIONS
     )
 
@@ -108,6 +112,14 @@ def email_addresses():
 def contact():
     return render_template(
         'public/contacts.html',
-        contacts=Contact.query.limit(500).all(),
+        contacts=Contact.query.limit(QUERY_LIMIT),
         header_actions=HEADER_ACTIONS
+    )
+
+
+@app.route('/tag')
+def tag():
+    return render_template(
+        'public/tags.html',
+        tags=Tag.query.limit(QUERY_LIMIT)
     )

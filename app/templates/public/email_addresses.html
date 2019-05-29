@@ -1,6 +1,7 @@
 <table>
   <tr>
     <th>Email Address</th>
+    <th>Name</th>
     <th>Total</th>
     <th>From</th>
     <th>To</th>
@@ -11,6 +12,7 @@
   {% for email in email_addresses %}
   <tr>
     <td>{{ email.email_address }}</td>
+    <td>{{ email.name }}</td>
     <td>{{ email.messages() | length }}</td>
     {% for action in header_actions %}
     <td>

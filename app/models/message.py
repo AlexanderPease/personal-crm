@@ -35,7 +35,8 @@ class Message(db.Model, ModelMixin):
     # Is there a way to dynamically create these?
     _email_addresses = relationship(
         "EmailAddress",
-        secondary="message_email_address", backref=backref("_messages"))
+        lazy='dynamic',
+        secondary="message_email_address", backref=backref("_messages", lazy='dynamic'))
     _email_addresses_from = relationship(
         "EmailAddress",
         primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
@@ -80,7 +81,8 @@ class Message(db.Model, ModelMixin):
         if action and action not in HEADER_ACTIONS:
             return
         elif action:
-            email_addresses = getattr(self, '_email_addresses_' + action.replace('-', '_'))
+            email_addresses = getattr(
+                self, '_email_addresses_' + action.replace('-', '_'))
         else:
             email_addresses = self._email_addresses
 
@@ -137,7 +139,7 @@ class EmailAddress(db.Model, ModelMixin):
     Relationships to Message: _messages, _messages_from, _messages_to, etc.
     """
     id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.Integer) # see EMAIL_STATUS_%
+    status = db.Column(db.Integer)  # see EMAIL_STATUS_%
 
     email_address = db.Column(db.String(), nullable=False, unique=True)
     name = db.Column(db.String())

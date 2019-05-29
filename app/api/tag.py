@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, reqparse
 
 from app.schema.tag import TagSchema
 from app.lib.api import get_or_abort
@@ -26,6 +26,6 @@ class TagListAPI(Resource):
         parser.add_argument('name', required=True)
         args = parser.parse_args()
         name = args.get('name')
-        
+
         tag = Tag.get_or_create(name=name)
         return tag_schema.dump(tag).data

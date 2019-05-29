@@ -3,6 +3,7 @@ from app.models import db
 
 MAILBOX_GMAIL = 'gmail.com'
 
+
 class Mailbox(db.Model):
     """A single mailbox, ex. joe@gmail.com.
     A User can have multiple mailboxes.
@@ -12,7 +13,7 @@ class Mailbox(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # TODO: move User.google_credentials to the Mailbox level...
-    
+
     local_part = domain = db.Column(db.String(), nullable=False)
     domain = db.Column(db.String(), nullable=False)
 
@@ -33,4 +34,4 @@ class Mailbox(db.Model):
 
     @property
     def email_address(self):
-        return f'{self.local_part}@{self.domain}'    
+        return f'{self.local_part}@{self.domain}'

@@ -2,11 +2,13 @@ import click
 from flask import current_app as app
 from sqlalchemy.sql import not_
 
-from app.lib.gmail import GmailService
-from app.lib.parse_message import parse_message
+from app.lib.clean import clean_name
 from app.lib.constants import (
     BLACKLIST_EMAIL_SUBSTRINGS, EMAIL_STATUS_IGNORE, EMAIL_STATUS_NORMAL
 )
+from app.lib.gmail import GmailService
+from app.lib.parse_message import parse_message
+
 from app.models import db
 from app.models.contact import Contact
 from app.models.mailbox import Mailbox
@@ -114,16 +116,28 @@ def blacklist_emails(dry_run):
 @click.option('--dry-run', is_flag=True, default=False)
 def generate_contacts(dry_run):
     """Step 5: Generate Contacts for each EmailAddress."""
-    emails = EmailAddress.query.filter_by(status=EMAIL_STATUS_NORMAL, contact=None).all()
+    emails = EmailAddress.query.filter_by(
+        status=EMAIL_STATUS_NORMAL, contact=None)
     print(f'Retrieved email addresses w/out contacts..')
 
     for ea in emails:
         if dry_run:
             print(ea)
         else:
-            contact = Contact(name=ea.name)
+            contact = Contact(name=clean_name(ea.name))
             ea.contact = contact
             db.session.add(ea)
             db.session.commit()
+
+    print('Success')
+
+
+@app.cli.command('clean-contacts')
+def clean_contacts():
+    """Step 5a: Clean contact names"""
+    for contact in Contact.query:
+        contact.name = clean_name(contact.name)
+        db.session.add(contact)
+        db.session.commit()
 
     print('Success')

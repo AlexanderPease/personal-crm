@@ -1,6 +1,6 @@
 API for my Personal CRM.
 
-Purpose: Track WITHOUT needing to create contacts 
+Purpose: Track and maintain relationships via email WITHOUT needing to manually create contacts.
 
 WIP:
 - Tag a person, i.e. email address or Contact

@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse, abort
+from sqlalchemy.orm.exc import NoResultFound
 
 from app.schema.contact import ContactSchema
 from app.lib.api import get_or_abort
@@ -29,15 +30,15 @@ class ContactAPI(Resource):
         # Basic fields
         contact.name = args.get('name', contact.name)
         contact.company = args.get('company', contact.company)
-        
+
         # Add Tags
         tag_id = args.get('tag_id')
         try:
             tag = Tag.query.get(tag_id)
-        except:
+        except NoResultFound:
             abort(404, message=f"Tag {tag_id} doesn't exist")
         contact.add_tag(tag)
-        
+
         db.session.commit()
 
         return contact_schema.dump(contact).data
