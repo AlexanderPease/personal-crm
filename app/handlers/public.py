@@ -79,7 +79,7 @@ def auth():
 @app.route('/auth/login')
 def login():
     if not current_user.is_authenticated:
-        user = User.query.get(10) # garbage
+        user = User.query.get(10)  # TODO: garbage
         login_user(user, remember=True)
     return 'Success'
 
@@ -96,14 +96,14 @@ QUERY_LIMIT = 100
 @app.route('/message')
 def messages():
     return render_template(
-        'public/messages.html', messages=Message.query.limit(QUERY_LIMIT).all())
+        'public/messages.html', messages=Message.query.limit(QUERY_LIMIT))
 
 
 @app.route('/email-address')
 def email_addresses():
     return render_template(
         'public/email_addresses.html',
-        email_addresses=EmailAddress.query.limit(QUERY_LIMIT).all(),
+        email_addresses=EmailAddress.query.limit(QUERY_LIMIT),
         header_actions=HEADER_ACTIONS
     )
 
