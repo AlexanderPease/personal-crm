@@ -47,6 +47,9 @@ def register_blueprints(app):
     from app.handlers.public import mod as public_module
     app.register_blueprint(public_module)
 
+    from app.handlers.table import mod as table_module
+    app.register_blueprint(table_module)
+
     # Jinja2 filters
     app.register_blueprint(filters)
 

@@ -1,0 +1,24 @@
+<table>
+  <tr>
+    <th>Email Address</th>
+    <th>Name</th>
+    <th>Total</th>
+    <th>From</th>
+    <th>To</th>
+  </tr>
+  {% for row in email_addresses %}
+  <tr>
+    <td>{{ row[map['email']] }}</td>
+    <td>{{ row[map['name']]|empty }}</td>
+    <td>{{ row[2] }}</td>
+    <td>
+      {{ row[map['from']] }} 
+      {% if row[map['from_latest']] %}({{ row[map['from_latest']]|date }}){% endif %}
+    </td>
+    <td>
+      {{ row[map['to']] }} 
+      {% if row[map['to_latest']] %}({{ row[map['to_latest']]|date }}){% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>

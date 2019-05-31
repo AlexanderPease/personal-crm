@@ -4,10 +4,18 @@ EMAIL_STATUS_IGNORE = 1
 
 # SQL substrings for ignoring email addresses
 BLACKLIST_EMAIL_SUBSTRINGS = [
-    '%no-reply%',
-    '%noreply%',
     '%newsletter%',
-    'info%',
-    'support%',
-    'notification%',
+    '%%info%',
+    '%%support%',
+    '%%notification%',
+    '%%mailer%',
+    '%%reply%',
+
+    # Redundant with general reply
+    # '%%do-not-reply%',
+    # '%%donotreply%',
+    # '%%do_not_reply%',
+    # '%no-reply%',
+    # '%noreply%',
+
 ]

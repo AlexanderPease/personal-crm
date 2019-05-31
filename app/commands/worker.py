@@ -130,14 +130,3 @@ def generate_contacts(dry_run):
             db.session.commit()
 
     print('Success')
-
-
-@app.cli.command('clean-contacts')
-def clean_contacts():
-    """Step 5a: Clean contact names"""
-    for contact in Contact.query:
-        contact.name = clean_name(contact.name)
-        db.session.add(contact)
-        db.session.commit()
-
-    print('Success')

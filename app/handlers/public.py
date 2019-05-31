@@ -7,10 +7,7 @@ from app.lib.google_auth import (
     auth_credentials, service_for_user, credentials_to_dict)
 from app.lib.gmail import GmailService
 from app.models import db
-from app.models.contact import Contact
 from app.models.mailbox import Mailbox
-from app.models.message import Message, EmailAddress, HEADER_ACTIONS
-from app.models.tag import Tag
 from app.models.user import User
 
 
@@ -88,38 +85,3 @@ def login():
 def logout():
     logout_user()
     session.clear()
-
-
-QUERY_LIMIT = 100
-
-
-@app.route('/message')
-def messages():
-    return render_template(
-        'public/messages.html', messages=Message.query.limit(QUERY_LIMIT))
-
-
-@app.route('/email-address')
-def email_addresses():
-    return render_template(
-        'public/email_addresses.html',
-        email_addresses=EmailAddress.query.limit(QUERY_LIMIT),
-        header_actions=HEADER_ACTIONS
-    )
-
-
-@app.route('/contact')
-def contact():
-    return render_template(
-        'public/contacts.html',
-        contacts=Contact.query.limit(QUERY_LIMIT),
-        header_actions=HEADER_ACTIONS
-    )
-
-
-@app.route('/tag')
-def tag():
-    return render_template(
-        'public/tags.html',
-        tags=Tag.query.limit(QUERY_LIMIT)
-    )

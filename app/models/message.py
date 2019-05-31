@@ -32,11 +32,12 @@ class Message(db.Model, ModelMixin):
     subject = db.Column(db.String())
     raw_resource = db.Column(db.JSON())  # Entire Gmail.Resource dict
 
-    # Is there a way to dynamically create these?
+    # Is there a way to joinedally create these?
     _email_addresses = relationship(
         "EmailAddress",
         lazy='dynamic',
-        secondary="message_email_address", backref=backref("_messages", lazy='dynamic'))
+        secondary="message_email_address",
+        backref=backref("_messages", lazy='dynamic'))
     _email_addresses_from = relationship(
         "EmailAddress",
         primaryjoin="and_(Message.id==MessageEmailAddress.message_id, MessageEmailAddress.action=='from')",
@@ -130,9 +131,9 @@ class Message(db.Model, ModelMixin):
         return email_address
 
 
-################################################################################
+###############################################################################
 # Email Address
-################################################################################
+###############################################################################
 class EmailAddress(db.Model, ModelMixin):
     """A single email address.
 
@@ -190,9 +191,9 @@ class EmailAddress(db.Model, ModelMixin):
         return messages
 
 
-################################################################################
+###############################################################################
 # Association table
-################################################################################
+###############################################################################
 class MessageEmailAddress(db.Model):
     # Join Message and EmailAddress tables
     id = db.Column(db.Integer, primary_key=True)

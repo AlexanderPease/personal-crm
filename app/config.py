@@ -26,6 +26,7 @@ class Config(object):
 class LocalConfig(Config):
     FLASK_DEBUG = True
     FLASK_LOG_LEVEL = 'DEBUG'
+    SQLALCHEMY_ECHO = True
 
     TESTING = True
 
