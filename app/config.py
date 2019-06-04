@@ -45,5 +45,6 @@ class TestConfig(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/crm-test'
 
     TESTING = True
+    SQLALCHEMY_ECHO = False
     CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
