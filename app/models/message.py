@@ -205,3 +205,52 @@ class MessageEmailAddress(db.Model):
 
     message = db.relationship("Message", backref=backref("message_email_address", lazy='dynamic'))
     email_address = db.relationship("EmailAddress", backref=backref("message_email_address", lazy='dynamic'))
+
+
+###############################################################################
+# Email Address table w/ built-in joins for performance
+###############################################################################
+class EmailAddressProxyTable(object):
+    """An performant object for joining email address and message tables."""
+    def __init__(self, **kwargs):
+        self.data =     ea = db.session.execute(
+            '''
+            SELECT
+                e.email_address as email_address,
+                e.name as name,
+                COUNT(*) as "Total",
+                COUNT(case when assoc.action = 'from' then 1 ELSE NULL END) as "From",
+                MAX(case when assoc.action = 'from' then m.datetime else null end) as "Latest From",
+                COUNT(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then 1 ELSE NULL END) as "To",
+                MAX(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then m.datetime ELSE NULL END) as "Latest To"
+
+            FROM email_address e
+            LEFT JOIN message_email_address assoc
+            ON e.id = assoc.email_id
+
+            LEFT JOIN message m
+            on m.id = assoc.message_id
+
+            WHERE e.status = 0
+
+            GROUP BY e.email_address, e.name, assoc.action
+
+            LIMIT 1000
+            '''
+        )
+
+        self.col_mapping = {
+            'email': 0,
+            'name': 1,
+            'total': 2,
+            'from': 3,
+            'from_latest': 4,
+            'to': 5,
+            'to_latest': 6
+        }
+
+    def __iter__(self):
+        for d in self.data: yield d
+
+    def get(self, row, name):
+        return row[self.col_mapping.get(name, 0)]

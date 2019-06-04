@@ -6,18 +6,18 @@
     <th>From</th>
     <th>To</th>
   </tr>
-  {% for row in email_addresses %}
+  {% for row in ea %}
   <tr>
-    <td>{{ row[map['email']] }}</td>
-    <td>{{ row[map['name']]|empty }}</td>
-    <td>{{ row[2] }}</td>
+    <td>{{ ea.get(row, 'email') }}</td>
+    <td>{{ ea.get(row, 'name')|empty }}</td>
+    <td>{{ ea.get(row, 'total') }}</td>
     <td>
-      {{ row[map['from']] }} 
-      {% if row[map['from_latest']] %}({{ row[map['from_latest']]|date }}){% endif %}
+      {{ ea.get(row, 'email_address') }} 
+      {% if ea.get(row, 'from_latest') %}({{ ea.get(row, 'from_latest')|date }}){% endif %}
     </td>
     <td>
-      {{ row[map['to']] }} 
-      {% if row[map['to_latest']] %}({{ row[map['to_latest']]|date }}){% endif %}
+      {{ ea.get(row, 'to') }} 
+      {% if ea.get(row, 'to_latest') %}({{ ea.get(row, 'to_latest')|date }}){% endif %}
     </td>
   </tr>
   {% endfor %}

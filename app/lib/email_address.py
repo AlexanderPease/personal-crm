@@ -16,9 +16,3 @@ def clean_email(email_str):
     address = address.replace('.', '')
     address = address.lower()
     return f'{address}@{domain}'
-
-# def email_address_table():
-#     """Returns a  """
-
-
-#     class 
