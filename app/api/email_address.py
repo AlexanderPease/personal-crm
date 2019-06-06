@@ -1,12 +1,13 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, reqparse
 
 from app.lib.api import get_or_abort
 from app.lib.constants import EMAIL_STATUS_NORMAL
-from app.schema.email_address import EmailAddressSchema
-from app.models.message import EmailAddress
+from app.schema.email_address import EmailAddressSchema, EmailAddressProxyTableSchema
+from app.models.message import (
+    EmailAddress, EmailAddressProxyTable)
 
 schema = EmailAddressSchema()
-schema_many = EmailAddressSchema(many=True)
+schema_many = EmailAddressProxyTableSchema(many=True)
 
 
 parser = reqparse.RequestParser()
@@ -21,6 +22,6 @@ class EmailAddressAPI(Resource):
 
 class EmailAddressListAPI(Resource):
     def get(self):
-        email_addresses = EmailAddress.query.filter_by(
-            status=EMAIL_STATUS_NORMAL).all()
+        email_addresses = EmailAddressProxyTable()
+        print(email_addresses)
         return schema_many.dump(email_addresses)

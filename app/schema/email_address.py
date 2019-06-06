@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import fields
 
 from app.models import ma
 from app.schema import MESSAGE_SIMPLE_SCHEMA
@@ -33,3 +33,14 @@ class EmailAddressSchema(ma.Schema):
         attribute='_messages_delivered_to',
         **MESSAGE_SIMPLE_SCHEMA
     )
+
+
+class EmailAddressProxyTableSchema(ma.Schema):
+    id = fields.Integer()
+    email_address = fields.String()
+    name = fields.String()
+    total = fields.Integer()
+    from_count = fields.Integer()
+    from_latest = fields.String()
+    to_count = fields.Integer()
+    to_latest = fields.String()
