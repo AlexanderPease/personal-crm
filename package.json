@@ -1,13 +1,13 @@
 {
-  "name": "ae-flask",
+  "name": "crm",
   "version": "1.0.0",
-  "description": "Web app for Prehype Applied Entrepreneurship courses",
+  "description": "Personal CRM",
   "main": "index.js",
   "scripts": {
         "scss": "node-sass --watch app/static/sass -o app/static/css"
   },
   "keywords": [],
-  "author": "Alexander Pease",
+  "author": "Zander Pease",
   "license": "ISC",
   "dependencies": {
     "node-sass": "4.9.3",
