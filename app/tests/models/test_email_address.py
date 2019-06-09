@@ -60,6 +60,7 @@ class TestEmailAddress(TestModelBase):
                 len(EmailAddress.query.all()), 1
             )
 
+    # TODO with .
     def test_unique(self):
         with self.app.application.app_context():
             ea = self.add(email_address="test@test.com")

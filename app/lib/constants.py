@@ -10,6 +10,11 @@ BLACKLIST_EMAIL_SUBSTRINGS = [
     '%%notification%',
     '%%mailer%',
     '%%reply%',
+    'hello@',
+    'team@',
+
+    # Personal
+    '%%alexanderpease.com'
 
     # Redundant with general reply
     # '%%do-not-reply%',
@@ -17,5 +22,4 @@ BLACKLIST_EMAIL_SUBSTRINGS = [
     # '%%do_not_reply%',
     # '%no-reply%',
     # '%noreply%',
-
 ]

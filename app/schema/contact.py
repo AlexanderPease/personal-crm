@@ -1,13 +1,10 @@
 from marshmallow import Schema, fields
 
-from app.models import ma
-from app.schema import EMAIL_SIMPLE_SCHEMA_ONLY
 
-
-class ContactSchema(ma.Schema):
+class ContactSchema(Schema):
     id = fields.Integer()
     name = fields.String()
-    company = fields.String()
+    # company = fields.String()
     email_addresses = fields.Nested(
         'EmailAddressSchema',
         only=('id', 'email_address',),
@@ -18,3 +15,7 @@ class ContactSchema(ma.Schema):
         only=('id', 'name',),
         many=True
     )
+    to_count = fields.Integer()
+    to_latest = fields.String()
+    from_count = fields.Integer()
+    from_latest = fields.String()

@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
-from app.models import db, ModelMixin
+from app.models import db, ModelMixin, ProxyTable
 from app.lib.constants import EMAIL_STATUS_NORMAL
 from app.lib.email_address import valid_email
 
@@ -207,40 +207,31 @@ class MessageEmailAddress(db.Model):
     email_address = db.relationship("EmailAddress", backref=backref("message_email_address", lazy='dynamic'))
 
 
-###############################################################################
-# Email Address table w/ built-in joins for performance
-###############################################################################
-class EmailAddressProxyTable(object):
-    """An performant object for joining email address and message tables."""
-    def __init__(self, **kwargs):
-        self.data = db.session.execute(
-            '''
-            SELECT
-                e.id as id,
-                e.email_address as email_address,
-                e.name as name,
-                COUNT(*) as "Total",
-                COUNT(case when assoc.action = 'from' then 1 ELSE NULL END) as "from_count",
-                MAX(case when assoc.action = 'from' then m.datetime else null end) as "from_latest",
-                COUNT(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then 1 ELSE NULL END) as "to_count",
-                MAX(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then m.datetime ELSE NULL END) as "to_latest"
+class EmailAddressProxyTable(ProxyTable):
+    sql = '''
+        SELECT
+            e.id as id,
+            e.email_address as email_address,
+            e.name as name,
+            COUNT(*) as "Total",
+            COUNT(case when assoc.action = 'from' then 1 ELSE NULL END) as "from_count",
+            MAX(case when assoc.action = 'from' then m.datetime else null end) as "from_latest",
+            COUNT(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then 1 ELSE NULL END) as "to_count",
+            MAX(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then m.datetime ELSE NULL END) as "to_latest"
 
-            FROM email_address e
-            LEFT JOIN message_email_address assoc
-            ON e.id = assoc.email_id
+        FROM email_address e
+        LEFT JOIN message_email_address assoc
+        ON e.id = assoc.email_id
 
-            LEFT JOIN message m
-            on m.id = assoc.message_id
+        LEFT JOIN message m
+        on m.id = assoc.message_id
 
-            WHERE e.status = 0
+        WHERE e.status = 0
 
-            GROUP BY e.id, e.email_address, e.name, assoc.action
+        GROUP BY e.id, e.email_address, e.name
+        '''
 
-            LIMIT 1000
-            '''
-        )
-
-        self.col_mapping = {
+    col_mapping = {
             'id': 0,
             'email': 1,
             'name': 2,
@@ -250,10 +241,3 @@ class EmailAddressProxyTable(object):
             'to_count': 6,
             'to_latest': 7
         }
-
-    def __iter__(self):
-        for d in self.data:
-            yield d
-
-    def get(self, row, name):
-        return row[self.col_mapping.get(name, 0)]

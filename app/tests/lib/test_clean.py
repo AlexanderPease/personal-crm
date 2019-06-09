@@ -4,7 +4,7 @@ from app.lib.clean import clean_name
 from app.tests import TestBase
 
 
-class TestParseMessages(TestBase):
+class TestClean(TestBase):
     """Tests app/lib/clean.py functions."""
 
     def test_clean_name(self):

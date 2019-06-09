@@ -1,12 +1,11 @@
 from marshmallow import Schema, fields
 
-from app.models import ma
 
-
-class TagSchema(ma.Schema):
+class TagSchema(Schema):
     id = fields.Integer()
     name = fields.String()
     contacts = fields.Nested(
         'ContactSchema',
+        exclude=('tags',),
         many=True
     )

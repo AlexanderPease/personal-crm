@@ -4,7 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from app.schema.contact import ContactSchema
 from app.lib.api import get_or_abort
 from app.models import db
-from app.models.contact import Contact
+from app.models.contact import Contact, ContactProxyTable
 from app.models.tag import Tag
 
 contact_schema = ContactSchema()
@@ -37,7 +37,11 @@ class ContactAPI(Resource):
             tag = Tag.query.get(tag_id)
         except NoResultFound:
             abort(404, message=f"Tag {tag_id} doesn't exist")
-        contact.add_tag(tag)
+        try:
+            contact.tags.append(tag)
+        except AssertionError:
+            print(f'Tag {tag.name} already assigned to Contact {contact.id}')
+            pass
 
         db.session.commit()
 
@@ -46,5 +50,5 @@ class ContactAPI(Resource):
 
 class ContactListAPI(Resource):
     def get(self):
-        contacts = Contact.query.all()
+        contacts = ContactProxyTable()
         return contacts_schema.dump(contacts).data

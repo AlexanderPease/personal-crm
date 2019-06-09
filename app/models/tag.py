@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 tag_contact = db.Table(
     'tag_contact',
     db.Column('contact_id', db.ForeignKey('contact.id')),
-    db.Column('tag_id', db.ForeignKey('tag.id')),
+    db.Column('tag_id', db.ForeignKey('tag.id'))
 )
 
 

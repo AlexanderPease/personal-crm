@@ -2,7 +2,7 @@ import click
 from flask import current_app as app
 
 from app.lib.clean import clean_name
-from app.lib.email_address import valid_email
+from app.lib.email_address import valid_email, generate_name
 from app.models import db
 from app.models.contact import Contact
 from app.models.message import EmailAddress, MessageEmailAddress
@@ -30,12 +30,16 @@ def clean_emails(dry_run):
     print('Success')
 
 
-
 @app.cli.command('clean-contacts')
 def clean_contacts():
     """Included in worker.generate_contacts (Step 5)"""
     for contact in Contact.query:
-        contact.name = clean_name(contact.name)
+        if contact.name:
+            name = contact.name
+        else:
+            name = generate_name(contact.email_addresses[0].email_address)
+        contact.name = clean_name(name)
+
         db.session.add(contact)
         db.session.commit()
 

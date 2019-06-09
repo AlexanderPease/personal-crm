@@ -8,11 +8,22 @@ def valid_email(email_str):
         return False
     return ea
 
+
 def clean_email(email_str):
     """Cleans email addresses.
-    Ex. Myra.Gupta@gmail.com is equivalent to myragupta@gmail.com
+    Ex. Myra.Gupta@gmail.com is equivalent to myra.gupta@gmail.com
     """
     address, domain = email_str.split('@')
-    address = address.replace('.', '')
     address = address.lower()
     return f'{address}@{domain}'
+
+
+def generate_name(email_str):
+    """Given an email address, guess the name.
+    Useful when a name is not given."""
+    name = email_str.split('@')[0]
+    name = name.replace('.', ' ').replace('_', ' ')
+    for num in range(0, 10):
+        name = name.replace(str(num), '')
+    name = name.title()
+    return name

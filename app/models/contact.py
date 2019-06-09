@@ -1,4 +1,6 @@
-from app.models import db, ModelMixin
+from sqlalchemy.orm import validates
+
+from app.models import db, ModelMixin, ProxyTable
 
 
 class Contact(db.Model, ModelMixin):
@@ -20,9 +22,42 @@ class Contact(db.Model, ModelMixin):
             return self.name
         return f'<Contact: {self.id}>'
 
-    def add_tag(self, tag):
-        """Adds a Tag, unique relationship to Tag."""
-        if tag in self.tags:
-            return
-        self.tags.append(tag)
-        return self
+    @validates('tags')
+    def validate_tags(self, key, tag, include_backrefs=True):
+        assert tag.name not in list(map(lambda t: t.name, self.tags))
+        return tag
+
+
+class ContactProxyTable(ProxyTable):
+    sql = """
+        SELECT
+            c.id as "id",
+            c.name as "name",
+            json_agg(DISTINCT e) as "email_addresses",
+            json_agg(DISTINCT t) as "tags",
+            COUNT(case when assoc.action = 'from' then 1 ELSE NULL END) as "from_count",
+            MAX(case when assoc.action = 'from' then m.datetime else null end) as "from_latest",
+            COUNT(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then 1 ELSE NULL END) as "to_count",
+            MAX(case when assoc.action = 'to' or assoc.action = 'cc' or assoc.action = 'bcc' then m.datetime ELSE NULL END) as "to_latest"
+
+        FROM contact c
+
+        LEFT JOIN email_address e
+        ON e.contact_id = c.id
+
+        LEFT JOIN message_email_address assoc
+        ON e.id = assoc.email_id
+
+        LEFT JOIN message m
+        on m.id = assoc.message_id
+
+        LEFT JOIN tag_contact assoc_tag
+        ON c.id = assoc_tag.contact_id
+
+        LEFT JOIN tag t
+        ON t.id = assoc_tag.tag_id
+
+        WHERE e.status = 0
+
+        GROUP BY c.id, c.name, e.email_address, e.name
+        """ # noqa
