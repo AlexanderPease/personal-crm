@@ -59,7 +59,7 @@ class ContactProxyTable(ProxyTable):
         LEFT JOIN tag t
         ON t.id = assoc_tag.tag_id
 
-        WHERE e.status = 0
+        WHERE e.status = 0 AND c.obj_status LIKE 'a' OR c.obj_status IS null
 
-        GROUP BY c.id, c.name, e.email_address, e.name
+        GROUP BY c.id
         """ # noqa

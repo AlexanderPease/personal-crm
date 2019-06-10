@@ -22,9 +22,7 @@ class TestContact(TestBase):
             e1.contact = c1
             e2 = EmailAddress(email_address="2@test.com")
             e2.contact = c2
-            db.session.add(e1)
-            db.session.add(e2)
-            db.session.commit()
+            db.session.add_all([e1, e2])
 
             # Set up tags
             t1 = Tag(name="t1")
@@ -32,21 +30,23 @@ class TestContact(TestBase):
             t2 = Tag(name="t2")
             c2.tags.append(t1)  # redundant tag
             c2.tags.append(t2)  # non-redundant tag
-            db.session.add(c1)
-            db.session.add(c2)
+            db.session.add_all([c1, c2])
+
             db.session.commit()
 
-            # Check merge
+            # Merge
             c_merged = merge_contacts(c1, c2)
             assert_equals(c_merged.id, c1.id)
-            assert_equals(c_merged.name, c1.name)
+            assert_equals(c_merged.name, "Dan Shipper")
 
+            # Check email addresses
             assert_equals(c_merged, e1.contact)
             assert_equals(c_merged, e2.contact)
             assert_equals(len(c_merged.email_addresses), 2)
 
+            # Check tags
             assert_equals(len(c_merged.tags), 2)
             assert("t2" in list(map(lambda t: t.name, c_merged.tags)))
 
-            # C2 shoudl be "deleted"
-            assert_equals(c2.status, OBJECT_STATUS_DELETED)
+            # C2 should be "deleted"
+            assert_equals(c2.obj_status, OBJECT_STATUS_DELETED)

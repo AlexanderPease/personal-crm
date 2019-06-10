@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, reqparse
 
 from app.schema.message import MessageSchema
 from app.lib.api import get_or_abort
