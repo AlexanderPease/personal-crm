@@ -1,15 +1,17 @@
 from sqlalchemy.orm import validates
 
-from app.models import db, ModelMixin, ProxyTable
+from app.models import db, ProxyTable
+from app.models.mixins.model_mixin import ModelMixin
+from app.models.mixins.status_mixin import StatusMixin
 
 
-class Contact(db.Model, ModelMixin):
+class Contact(db.Model, ModelMixin, StatusMixin):
     """A single contact (i.e. a person) may have multiple email addresses.
 
-    Relationship to EmailAddress: email_addresses
+    Relationship to EmailAddress: contact.email_addresses
         A single Contact can have multiple email addresses.
 
-    Relationship to Tags: tags
+    Relationship to Tags: contact.tags
         Many-to-many relationship.
     """
     id = db.Column(db.Integer, primary_key=True)

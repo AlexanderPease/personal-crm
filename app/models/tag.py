@@ -1,5 +1,7 @@
-from app.models import db, ModelMixin
 from sqlalchemy.orm import relationship
+
+from app.models import db
+from app.models.mixins.model_mixin import ModelMixin
 
 
 tag_contact = db.Table(

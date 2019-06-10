@@ -2,7 +2,8 @@ from datetime import datetime
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship, backref, aliased
 
-from app.models import db, ModelMixin, ProxyTable
+from app.models import db, ProxyTable
+from app.models.mixins.model_mixin import ModelMixin
 from app.lib.constants import EMAIL_STATUS_NORMAL
 from app.lib.email_address import valid_email
 

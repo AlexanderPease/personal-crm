@@ -29,7 +29,7 @@ def index():
                 for label in labels:
                     print(label['name'])
 
-    return render_template('public/index.html')
+    return render_template('index.html')
 
 
 @app.route('/auth/google')
