@@ -21,19 +21,16 @@ class ContactAPI(Resource):
         return contact_schema.dump(contact).data
 
     def put(self, obj_id):
-        print('PUTTTTT')
         contact = get_or_abort(Contact, obj_id)
 
         parser.add_argument('name')
         parser.add_argument('company')
-        parser.add_argument('tag_id', type=int)
+        parser.add_argument('tags', action='append')
         parser.add_argument('merge', type=int)
         args = parser.parse_args()
-        print(args)
 
         # Merging supercedes other operations
         if args.get('merge', False):
-            print('in merge')
             c2 = get_or_abort(Contact, args.get('merge'))
             merge_contacts(contact, c2)
 
@@ -41,16 +38,16 @@ class ContactAPI(Resource):
             return contact_schema.dump(contact).data
 
         # Basic fields
-        contact.name = args.get('name', contact.name)
-        contact.company = args.get('company', contact.company)
+        contact.name = args.get('name') or contact.name
+        contact.company = args.get('company') or contact.company
 
         # Add Tags
-        tag_id = args.get('tag_id')
-        if tag_id:
+        tag_strs = args.get('tags') or []
+        for tag_str in tag_strs:
             try:
-                tag = Tag.query.get(tag_id)
-            except NoResultFound:
-                abort(404, message=f"Tag {tag_id} doesn't exist")
+                tag = Tag.get_or_create(name=tag_str)
+            except ValueError:
+                abort(404, message=f"Error creating new Tag {tag_str}")
             try:
                 contact.tags.append(tag)
             except AssertionError:
@@ -58,6 +55,7 @@ class ContactAPI(Resource):
                 pass
             db.session.add(tag)
 
+        db.session.add(contact)
         db.session.commit()
 
         return contact_schema.dump(contact).data

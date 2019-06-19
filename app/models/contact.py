@@ -35,6 +35,7 @@ class ContactProxyTable(ProxyTable):
         SELECT
             c.id as "id",
             c.name as "name",
+            c.company as "company",
             json_agg(DISTINCT e) as "email_addresses",
             json_agg(DISTINCT t) as "tags",
             COUNT(case when assoc.action = 'from' then 1 ELSE NULL END) as "from_count",

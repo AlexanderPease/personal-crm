@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 class ContactSchema(Schema):
     id = fields.Integer()
     name = fields.String()
-    # company = fields.String()
+    company = fields.String()
     email_addresses = fields.Nested(
         'EmailAddressSchema',
         only=('id', 'email_address',),
